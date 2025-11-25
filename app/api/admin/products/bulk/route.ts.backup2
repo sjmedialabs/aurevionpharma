@@ -1,0 +1,138 @@
+import { type NextRequest, NextResponse } from "next/server"
+import { getRepository } from "@/lib/repo"
+import { getSession } from "@/lib/auth"
+import { productSchema } from "@/lib/validations"
+import * as XLSX from "xlsx"
+
+export async function POST(request: NextRequest) {
+  const session = await getSession()
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const formData = await request.formData()
+    const file = formData.get("file") as File
+    
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 })
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const workbook = XLSX.read(buffer, { type: "buffer" })
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" })
+
+    console.log("Processing", jsonData.length, "rows")
+    console.log("Sample row:", jsonData[0])
+
+    const repo = getRepository()
+    
+    // Get or create default category
+    let categories = await repo.getAllCategories()
+    if (categories.length === 0) {
+      // Create a default category if none exist
+      const defaultCategory = await repo.createCategory({
+        name: "APIs",
+        description: "Active Pharmaceutical Ingredients"
+      })
+      categories = [defaultCategory]
+    }
+    
+    const defaultCategoryName = categories[0].name
+    console.log("Using default category:", defaultCategoryName)
+    console.log("Available categories:", categories.map(c => c.name))
+
+    let success = 0, failed = 0
+    const errors = []
+
+    for (let i = 0; i < jsonData.length; i++) { // Process all products
+      const row = jsonData[i] as any
+      const rowNumber = i + 2
+      
+      try {
+        // Extract data with multiple fallback options
+        const name = (row.Name || row.name || row.ProductName || row.product_name || "").toString().trim()
+        const casNumber = (row.casNumber || row.CAS || row.cas || row["CAS Number"] || "").toString().trim()
+        let description = (row.description || row.Description || row.desc || "").toString().trim()
+        const category = (row.category || row.Category || "").toString().trim()
+
+        // Skip completely empty rows
+        if (!name && !casNumber) {
+          continue
+        }
+
+        // Generate defaults for missing required fields
+        if (!name) {
+          errors.push(`Row ${rowNumber}: Missing product name`)
+          failed++
+          continue
+        }
+
+        if (!casNumber) {
+          errors.push(`Row ${rowNumber}: Missing CAS number`)
+          failed++
+          continue
+        }
+
+        // Use default description if empty
+        if (!description) {
+          description = `Product: ${name}`
+        }
+
+        // Use default category if not found or empty
+        let finalCategory = defaultCategoryName
+        if (category) {
+          const foundCategory = categories.find(c => 
+            c.name.toLowerCase().includes(category.toLowerCase()) ||
+            category.toLowerCase().includes(c.name.toLowerCase())
+          )
+          if (foundCategory) {
+            finalCategory = foundCategory.name
+          }
+        }
+
+        // Prepare product data with safe defaults
+        const productData = {
+          name,
+          casNumber,
+          description,
+          category: finalCategory,
+          molecularFormula: (row.molecularFormula || row.MolecularFormula || "").toString().trim() || undefined,
+          molecularWeight: (row.molecularWeight || row.MolecularWeight || "").toString().trim() || undefined,
+          inStock: true // Default to in stock
+        }
+
+        console.log(`Row ${rowNumber}:`, { name: productData.name, cas: productData.casNumber, cat: productData.category })
+
+        // Validate and create
+        const validated = productSchema.parse(productData)
+        await repo.createProduct(validated)
+        success++
+        
+      } catch (error: any) {
+        console.error(`Row ${rowNumber} failed:`, error.message)
+        
+        if (error.message.includes("duplicate") || error.message.includes("unique")) {
+          errors.push(`Row ${rowNumber}: Product already exists (${row.Name || row.name})`)
+        } else {
+          errors.push(`Row ${rowNumber}: ${error.message}`)
+        }
+        failed++
+      }
+    }
+
+    console.log(`Upload completed: ${success} success, ${failed} failed`)
+    
+    return NextResponse.json({ 
+      success, 
+      failed, 
+      errors: errors.slice(0, 10),
+      message: success > 0 ? `Successfully uploaded ${success} products!` : "Upload failed. Check errors."
+    })
+    
+  } catch (error: any) {
+    console.error("Bulk upload error:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}

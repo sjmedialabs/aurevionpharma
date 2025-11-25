@@ -1,0 +1,473 @@
+import type { IDataRepository } from "./IDataRepository"
+import type {
+  Product,
+  Category,
+  Service,
+  Enquiry,
+  HomePageContent,
+  AboutPageContent,
+  ContactPageContent,
+  FooterContent,
+} from "@/types"
+import connectDB from "@/lib/db/mongodb"
+import { ProductModel } from "@/lib/db/models/Product"
+import { CategoryModel } from "@/lib/db/models/Category"
+import { ServiceModel } from "@/lib/db/models/Service"
+import { EnquiryModel } from "@/lib/db/models/Enquiry"
+import { ContentModel } from "@/lib/db/models/Content"
+
+class MongoDBRepository implements IDataRepository {
+  private async ensureConnection() {
+    await connectDB()
+  }
+
+  // Helper to convert MongoDB document to Product type
+  private toProduct(doc: any): Product {
+    return {
+      id: doc._id.toString(),
+      name: doc.name,
+      slug: doc.slug,
+      casNumber: doc.casNumber,
+      hsCode: doc.hsCode,
+      category: doc.category,
+      description: doc.description,
+      image: doc.image,
+      specifications: doc.specifications,
+      applications: doc.applications,
+      inStock: doc.inStock,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    }
+  }
+
+  private toCategory(doc: any): Category {
+    return {
+      id: doc._id.toString(),
+      name: doc.name,
+      slug: doc.slug,
+      description: doc.description,
+      icon: doc.icon,
+    }
+  }
+
+  private toService(doc: any): Service {
+    return {
+      id: doc._id.toString(),
+      title: doc.title,
+      subtitle: doc.subtitle,
+      slug: doc.slug,
+      description: doc.description,
+      icon: doc.icon,
+      image: doc.image,
+      features: doc.features || [],
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    }
+  }
+
+  private toEnquiry(doc: any): Enquiry {
+    return {
+      id: doc._id.toString(),
+      type: doc.type || "general",
+      name: doc.name,
+      email: doc.email,
+      phone: doc.phone,
+      company: doc.company,
+      productName: doc.productName,
+      casNumber: doc.casNumber,
+      rawKit: doc.rawKit,
+      therapeutic: doc.therapeutic,
+      quantity: doc.quantity,
+      message: doc.message,
+      status: doc.status,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    }
+  }
+
+  // Products
+  async getAllProducts(): Promise<Product[]> {
+    await this.ensureConnection()
+    const products = await ProductModel.find().sort({ createdAt: -1 })
+    return products.map(this.toProduct)
+
+  }
+
+  async getProductById(id: string): Promise<Product | null> {
+    await this.ensureConnection()
+    const product = await ProductModel.findById(id)
+    return product ? this.toProduct(product) : null
+  }
+
+  async getProductBySlug(slug: string): Promise<Product | null> {
+    await this.ensureConnection()
+    const product = await ProductModel.findOne({ slug })
+    return product ? this.toProduct(product) : null
+  }
+
+  async getProductsByCategory(category: string): Promise<Product[]> {
+    await this.ensureConnection()
+    const products = await ProductModel.find({ category }).sort({ createdAt: -1 })
+    return products.map(this.toProduct)
+
+  }
+
+  async searchProducts(query: string): Promise<Product[]> {
+    await this.ensureConnection()
+    const products = await ProductModel.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { casNumber: { $regex: query, $options: "i" } },
+        { hsCode: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+      ],
+    }).sort({ createdAt: -1 })
+    return products.map(this.toProduct)
+
+  }
+
+  async getFilteredProducts(filters: any, search?: string, sort?: string, limit?: number, skip?: number): Promise<Product[]> {
+    await this.ensureConnection()
+    const query: any = {}
+
+    // Apply filters
+    if (filters.category) {
+      query.category = filters.category
+    }
+    if (filters.subcategory) {
+      query.subcategory = filters.subcategory
+    }
+    if (filters.inStock !== undefined) {
+      query.inStock = filters.inStock
+    }
+
+    // Add search criteria
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { casNumber: { $regex: search, $options: "i" } },
+        { hsCode: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ]
+    }
+
+    // Build sort criteria
+    let sortCriteria: any = { createdAt: -1 } // default sort
+    if (sort === "name") {
+      sortCriteria = { name: 1 }
+    } else if (sort === "name-desc") {
+      sortCriteria = { name: -1 }
+    } else if (sort === "newest") {
+      sortCriteria = { createdAt: -1 }
+    } else if (sort === "oldest") {
+      sortCriteria = { createdAt: 1 }
+    }
+
+    let query_builder = ProductModel.find(query).sort(sortCriteria);
+    if (limit) query_builder = query_builder.limit(limit);
+    if (skip) query_builder = query_builder.skip(skip);
+    const products = await query_builder;
+    return products.map(this.toProduct)
+  }
+
+
+  async getProductsCount(filters: any, search?: string): Promise<number> {
+    await this.ensureConnection()
+    const query: any = {}
+
+    // Apply filters
+    if (filters.category) {
+      query.category = filters.category
+    }
+    if (filters.subcategory) {
+      query.subcategory = filters.subcategory
+    }
+    if (filters.inStock !== undefined) {
+      query.inStock = filters.inStock
+    }
+
+    // Add search criteria
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { casNumber: { $regex: search, $options: "i" } },
+        { hsCode: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ]
+    }
+
+    return await ProductModel.countDocuments(query)
+  }
+
+  async createProduct(productData: Omit<Product, "id" | "createdAt" | "updatedAt">): Promise<Product> {
+    await this.ensureConnection()
+    const product = await ProductModel.create(productData)
+    return this.toProduct(product)
+  }
+
+  async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
+    await this.ensureConnection()
+    const product = await ProductModel.findByIdAndUpdate(id, updates, { new: true })
+    return product ? this.toProduct(product) : null
+  }
+
+  async deleteProduct(id: string): Promise<boolean> {
+    await this.ensureConnection()
+    const result = await ProductModel.findByIdAndDelete(id)
+    return !!result
+  }
+
+  // Categories
+  async getAllCategories(): Promise<Category[]> {
+    await this.ensureConnection()
+    const categories = await CategoryModel.find()
+    return categories.map(this.toCategory)
+  }
+
+  async getCategoryById(id: string): Promise<Category | null> {
+    await this.ensureConnection()
+    const category = await CategoryModel.findById(id)
+    return category ? this.toCategory(category) : null
+  }
+
+  async createCategory(categoryData: Omit<Category, "id">): Promise<Category> {
+    await this.ensureConnection()
+    const category = await CategoryModel.create(categoryData)
+    return this.toCategory(category)
+  }
+
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | null> {
+    await this.ensureConnection()
+    const category = await CategoryModel.findByIdAndUpdate(id, updates, { new: true })
+    return category ? this.toCategory(category) : null
+  }
+
+  async deleteCategory(id: string): Promise<boolean> {
+    await this.ensureConnection()
+    const result = await CategoryModel.findByIdAndDelete(id)
+    return !!result
+  }
+
+  // Services
+  async getAllServices(): Promise<Service[]> {
+    await this.ensureConnection()
+    const services = await ServiceModel.find().sort({ createdAt: -1 })
+    return services.map(this.toService)
+  }
+
+  async getServiceById(id: string): Promise<Service | null> {
+    await this.ensureConnection()
+    const service = await ServiceModel.findById(id)
+    return service ? this.toService(service) : null
+  }
+
+  async getServiceBySlug(slug: string): Promise<Service | null> {
+    await this.ensureConnection()
+    const service = await ServiceModel.findOne({ slug })
+    return service ? this.toService(service) : null
+  }
+
+  async createService(serviceData: Omit<Service, "id" | "createdAt" | "updatedAt">): Promise<Service> {
+    await this.ensureConnection()
+    const service = await ServiceModel.create(serviceData)
+    return this.toService(service)
+  }
+
+  async updateService(id: string, updates: Partial<Service>): Promise<Service | null> {
+    await this.ensureConnection()
+    const service = await ServiceModel.findByIdAndUpdate(id, updates, { new: true })
+    return service ? this.toService(service) : null
+  }
+
+  async deleteService(id: string): Promise<boolean> {
+    await this.ensureConnection()
+    const result = await ServiceModel.findByIdAndDelete(id)
+    return !!result
+  }
+
+  // Enquiries
+  async createEnquiry(enquiryData: Omit<Enquiry, "id" | "createdAt" | "updatedAt">): Promise<Enquiry> {
+    await this.ensureConnection()
+    const enquiry = await EnquiryModel.create(enquiryData)
+    return this.toEnquiry(enquiry)
+  }
+
+  async getAllEnquiries(): Promise<Enquiry[]> {
+    await this.ensureConnection()
+    const enquiries = await EnquiryModel.find().sort({ createdAt: -1 })
+    return enquiries.map(this.toEnquiry)
+  }
+
+  async getEnquiryById(id: string): Promise<Enquiry | null> {
+    await this.ensureConnection()
+    const enquiry = await EnquiryModel.findById(id)
+    return enquiry ? this.toEnquiry(enquiry) : null
+  }
+
+  async updateEnquiryStatus(id: string, status: "pending" | "contacted" | "resolved"): Promise<Enquiry | null> {
+    await this.ensureConnection()
+    const enquiry = await EnquiryModel.findByIdAndUpdate(id, { status }, { new: true })
+    return enquiry ? this.toEnquiry(enquiry) : null
+  }
+
+  // CMS Content Management with fallbacks
+  async getHomePageContent(): Promise<HomePageContent> {
+    try {
+      await this.ensureConnection()
+      const content = await ContentModel.findOne({ type: "home" })
+      if (!content) {
+        console.log("⚠️ Home page content not found, using defaults")
+        return {
+          hero: {
+            title: "Welcome to Aurevion Pharma",
+            subtitle: "Premium pharmaceutical ingredients and services",
+            backgroundImage: "/images/hero-bg.jpg"
+          },
+          about: {
+            title: "About Us",
+            content: "Leading pharmaceutical company providing high-quality ingredients."
+          },
+          services: {
+            title: "Our Services",
+            items: []
+          },
+          updatedAt: new Date()
+        }
+      }
+      return content.data as HomePageContent
+    } catch (error) {
+      console.error("❌ Error fetching home content:", error)
+      return {
+        hero: {
+          title: "Welcome to Aurevion Pharma",
+          subtitle: "Premium pharmaceutical ingredients and services",
+          backgroundImage: "/images/hero-bg.jpg"
+        },
+        about: {
+          title: "About Us", 
+          content: "Loading..."
+        },
+        services: {
+          title: "Our Services",
+          items: []
+        },
+        updatedAt: new Date()
+      }
+    }
+  }
+
+  async updateHomePageContent(updates: Partial<HomePageContent>): Promise<HomePageContent> {
+    await this.ensureConnection()
+    const content = await ContentModel.findOne({ type: "home" })
+    if (!content) {
+      throw new Error("Home page content not found")
+    }
+    content.data = { ...content.data, ...updates, updatedAt: new Date() }
+    await content.save()
+    return content.data as HomePageContent
+  }
+
+  async getAboutPageContent(): Promise<AboutPageContent> {
+    try {
+      await this.ensureConnection()
+      const content = await ContentModel.findOne({ type: "about" })
+      if (!content) {
+        console.log("⚠️ About page content not found, using defaults")
+        return {
+          title: "About Aurevion Pharma",
+          content: "Default about content",
+          updatedAt: new Date()
+        }
+      }
+      return content.data as AboutPageContent
+    } catch (error) {
+      console.error("❌ Error fetching about content:", error)
+      return {
+        title: "About Aurevion Pharma",
+        content: "Loading...",
+        updatedAt: new Date()
+      }
+    }
+  }
+
+  async updateAboutPageContent(updates: Partial<AboutPageContent>): Promise<AboutPageContent> {
+    await this.ensureConnection()
+    const content = await ContentModel.findOne({ type: "about" })
+    if (!content) {
+      throw new Error("About page content not found")
+    }
+    content.data = { ...content.data, ...updates, updatedAt: new Date() }
+    await content.save()
+    return content.data as AboutPageContent
+  }
+
+  async getContactPageContent(): Promise<ContactPageContent> {
+    try {
+      await this.ensureConnection()
+      const content = await ContentModel.findOne({ type: "contact" })
+      if (!content) {
+        console.log("⚠️ Contact page content not found, using defaults")
+        return {
+          title: "Contact Us",
+          content: "Get in touch with us",
+          updatedAt: new Date()
+        }
+      }
+      return content.data as ContactPageContent
+    } catch (error) {
+      console.error("❌ Error fetching contact content:", error)
+      return {
+        title: "Contact Us",
+        content: "Loading...",
+        updatedAt: new Date()
+      }
+    }
+  }
+
+  async updateContactPageContent(updates: Partial<ContactPageContent>): Promise<ContactPageContent> {
+    await this.ensureConnection()
+    const content = await ContentModel.findOne({ type: "contact" })
+    if (!content) {
+      throw new Error("Contact page content not found")
+    }
+    content.data = { ...content.data, ...updates, updatedAt: new Date() }
+    await content.save()
+    return content.data as ContactPageContent
+  }
+
+  async getFooterContent(): Promise<FooterContent> {
+    try {
+      await this.ensureConnection()
+      const content = await ContentModel.findOne({ type: "footer" })
+      if (!content) {
+        console.log("⚠️ Footer content not found, using defaults")
+        return {
+          company: "Aurevion Pharma",
+          description: "Premium pharmaceutical ingredients",
+          updatedAt: new Date()
+        }
+      }
+      return content.data as FooterContent
+    } catch (error) {
+      console.error("❌ Error fetching footer content:", error)
+      return {
+        company: "Aurevion Pharma",
+        description: "Loading...",
+        updatedAt: new Date()
+      }
+    }
+  }
+
+  async updateFooterContent(updates: Partial<FooterContent>): Promise<FooterContent> {
+    await this.ensureConnection()
+    const content = await ContentModel.findOne({ type: "footer" })
+    if (!content) {
+      throw new Error("Footer content not found")
+    }
+    content.data = { ...content.data, ...updates, updatedAt: new Date() }
+    await content.save()
+    return content.data as FooterContent
+  }
+}
+
+export { MongoDBRepository }
