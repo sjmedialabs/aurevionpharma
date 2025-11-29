@@ -50,7 +50,7 @@ export function EnquiryModal({ isOpen, onClose, product }: EnquiryModalProps) {
     try {
       const response = await fetch("/api/products")
       const data = await response.json()
-      setAllProducts(data || [])
+      setAllProducts(data.products || [])
     } catch (error) {
       console.error("Failed to fetch products:", error)
       setAllProducts([])
