@@ -163,47 +163,109 @@ export function ProductsGrid({
             </div>
 
             {/* Pagination */}
-            {pagination && pagination.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onPageChange?.(pagination.page - 1)}
-                  disabled={pagination.page === 1 || loading}
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
-                </Button>
+            {pagination && pagination.totalPages > 1 && (() => {
+              const currentPage = pagination.page
+              const totalPages = pagination.totalPages
+              const maxVisiblePages = 7 // Maximum number of page buttons to show
+              
+              const getPageNumbers = () => {
+                // If total pages are less than or equal to maxVisiblePages, show all
+                if (totalPages <= maxVisiblePages) {
+                  return Array.from({ length: totalPages }, (_, i) => i + 1)
+                }
+                
+                const pages: (number | string)[] = []
+                const leftSiblingIndex = Math.max(currentPage - 1, 1)
+                const rightSiblingIndex = Math.min(currentPage + 1, totalPages)
+                
+                const shouldShowLeftDots = leftSiblingIndex > 2
+                const shouldShowRightDots = rightSiblingIndex < totalPages - 1
+                
+                // Always show first page
+                pages.push(1)
+                
+                if (shouldShowLeftDots) {
+                  pages.push('left-ellipsis')
+                } else if (leftSiblingIndex === 2) {
+                  pages.push(2)
+                }
+                
+                // Show pages around current page
+                for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
+                  if (i !== 1 && i !== totalPages) {
+                    pages.push(i)
+                  }
+                }
+                
+                if (shouldShowRightDots) {
+                  pages.push('right-ellipsis')
+                } else if (rightSiblingIndex === totalPages - 1) {
+                  pages.push(totalPages - 1)
+                }
+                
+                // Always show last page
+                if (totalPages !== 1) {
+                  pages.push(totalPages)
+                }
+                
+                return pages
+              }
+              
+              const pageNumbers = getPageNumbers()
+              
+              return (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onPageChange?.(pagination.page - 1)}
+                    disabled={pagination.page === 1 || loading}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
 
-                <div className="flex items-center gap-1">
-                  {[...Array(pagination.totalPages)].map((_, i) => {
-                    const page = i + 1
-                    return (
-                      <Button
-                        key={page}
-                        variant={pagination.page === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => onPageChange?.(page)}
-                        disabled={loading}
-                        className="w-8 h-8 p-0"
-                      >
-                        {page}
-                      </Button>
-                    )
-                  })}
+                  <div className="flex items-center gap-1">
+                    {pageNumbers.map((page, index) => {
+                      if (typeof page === 'string') {
+                        // Render ellipsis
+                        return (
+                          <span
+                            key={page}
+                            className="w-8 h-8 flex items-center justify-center text-gray-400"
+                          >
+                            ...
+                          </span>
+                        )
+                      }
+                      
+                      return (
+                        <Button
+                          key={page}
+                          variant={pagination.page === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => onPageChange?.(page)}
+                          disabled={loading}
+                          className="w-8 h-8 p-0"
+                        >
+                          {page}
+                        </Button>
+                      )
+                    })}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onPageChange?.(pagination.page + 1)}
+                    disabled={pagination.page === pagination.totalPages || loading}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
                 </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onPageChange?.(pagination.page + 1)}
-                  disabled={pagination.page === pagination.totalPages || loading}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            )}
+              )
+            })()}
           </>
         )}
       </div>
