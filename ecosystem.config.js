@@ -3,14 +3,14 @@ module.exports = {
     {
       name: 'aurevion-pharma',
       script: 'node_modules/next/dist/bin/next',
-      args: 'dev -p 8142',
+      args: 'start -p 8142',
       cwd: '/www/wwwroot/aurevion',
       instances: 1,
       exec_mode: 'fork',
       watch: false,
       max_memory_restart: '500M',
       env: {
-        NODE_ENV: 'development',
+        NODE_ENV: 'production',
         
         // Gmail SMTP (Working) - Sends FROM sales@aurevionpharma.com
         SMTP_HOST: 'smtp.gmail.com',
