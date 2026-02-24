@@ -94,15 +94,16 @@ export function AccordionItem({
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center space-x-1.5 ml-3" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center space-x-2 ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {onEdit && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onEdit}
-                className="h-7 w-7 p-0 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+                className="h-8 px-3 hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900/20 text-blue-600 border-blue-200"
               >
-                <Edit className="h-3.5 w-3.5" />
+                <Edit className="h-4 w-4 mr-1" />
+                Edit
               </Button>
             )}
             {onDelete && (
@@ -110,9 +111,10 @@ export function AccordionItem({
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
-                className="h-7 w-7 p-0 hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-900/20 text-red-600"
+                className="h-8 px-3 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-900/20 text-red-600 border-red-200"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete
               </Button>
             )}
           </div>

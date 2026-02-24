@@ -7,6 +7,7 @@ const categorySchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
   description: z.string().min(1, "Description is required").optional(),
   icon: z.string().optional(),
+  image: z.string().optional(),
   slug: z.string().optional(),
 })
 

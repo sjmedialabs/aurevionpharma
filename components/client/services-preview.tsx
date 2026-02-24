@@ -1,38 +1,38 @@
-"use client"
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import type { Service } from "@/types"
+"use client";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { Service } from "@/types";
+import { ServiceCard } from "@/components/services/service-card";
 
 export function ServicesPreview() {
-  const [services, setServices] = useState<Service[]>([])
-  const [loading, setLoading] = useState(true)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     async function fetchServices() {
       try {
-        const response = await fetch("/api/services")
-        const data = await response.json()
-        setServices(data)
+        const response = await fetch("/api/services");
+        const data = await response.json();
+        setServices(data);
       } catch (error) {
-        console.error("Failed to fetch services:", error)
-        setServices([])
+        console.error("Failed to fetch services:", error);
+        setServices([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchServices()
-  }, [])
+    fetchServices();
+  }, []);
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? services.length - 1 : prev - 1))
-  }
+    setCurrentIndex((prev) => (prev === 0 ? services.length - 1 : prev - 1));
+  };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === services.length - 1 ? 0 : prev + 1))
-  }
+    setCurrentIndex((prev) => (prev === services.length - 1 ? 0 : prev + 1));
+  };
 
   if (loading) {
     return (
@@ -40,14 +40,16 @@ export function ServicesPreview() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-[42px] font-bold text-black">SERVICES</h2>
-            <p className="text-4xl font-light text-black">COMPREHENSIVE PHARMA SUPPORT SOLUTIONS</p>
+            <p className="text-4xl font-light text-black">
+              COMPREHENSIVE PHARMA SUPPORT SOLUTIONS
+            </p>
           </div>
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#141570]"></div>
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   if (services.length === 0) {
@@ -56,14 +58,18 @@ export function ServicesPreview() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-[42px] font-bold text-black">SERVICES</h2>
-            <p className="text-4xl font-light text-black">COMPREHENSIVE PHARMA SUPPORT SOLUTIONS</p>
+            <p className="text-4xl font-light text-black">
+              COMPREHENSIVE PHARMA SUPPORT SOLUTIONS
+            </p>
           </div>
           <div className="text-center">
-            <p className="text-gray-600">No services available at the moment.</p>
+            <p className="text-gray-600">
+              No services available at the moment.
+            </p>
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   return (
@@ -71,7 +77,9 @@ export function ServicesPreview() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-[42px] font-bold text-black">SERVICES</h2>
-          <p className="text-4xl font-light text-black">COMPREHENSIVE PHARMA SUPPORT SOLUTIONS</p>
+          <p className="text-4xl font-light text-black">
+            COMPREHENSIVE PHARMA SUPPORT SOLUTIONS
+          </p>
         </div>
 
         <div className="relative">
@@ -96,47 +104,16 @@ export function ServicesPreview() {
           <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * (100 / Math.min(services.length, 3))}%)` }}
+              style={{
+                transform: `translateX(-${currentIndex * (100 / Math.min(services.length, 3))}%)`,
+              }}
             >
               {services.map((service) => (
-                <div key={service.id} className="w-full md:w-1/3 flex-shrink-0 px-4">
-                  <div className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    {/* Icon and Text Section */}
-                    <div className="p-8 pb-4">
-                      <div className="flex justify-center mb-6">
-                        <div className="w-16 h-16 relative">
-                          <Image
-                            src={service.icon || "/placeholder.svg"}
-                            alt={`${service.title} icon`}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="text-center space-y-2 mb-4">
-                        <p className="text-sm text-[#8893B9] uppercase tracking-wide">{service.subtitle}</p>
-                        <h3 className="text-[32px] font-bold text-brand-primary">{service.title}</h3>
-                      </div>
-
-                      {/* Arrow Icon */}
-                      <div className="flex justify-center mb-4">
-                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center">
-                          <ChevronRight className="w-5 h-5 text-white" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Image Section */}
-                    <div className="relative h-64 overflow-hidden">
-                      <Image
-                        src={service.image || "/placeholder.svg"}
-                        alt={service.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
+                <div
+                  key={service.id}
+                  className="w-full md:w-1/3 flex-shrink-0 px-4"
+                >
+                  <ServiceCard service={service} />
                 </div>
               ))}
             </div>
@@ -144,5 +121,5 @@ export function ServicesPreview() {
         </div>
       </div>
     </section>
-  )
+  );
 }

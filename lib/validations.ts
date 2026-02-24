@@ -8,24 +8,26 @@ function generateSlug(name: string): string {
     .replace(/(^-|-$)/g, '')
 }
 
+// Helper to handle null/undefined strings
+const optionalString = z.string().optional().nullable().transform(val => val || undefined)
+
 export const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
-  slug: z.string().min(1, "Slug is required").optional(),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  casNumber: z.string().min(1, "CAS number is required"),
-  hsCode: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
-  molecularFormula: z.string().optional(),
-  molecularWeight: z.string().optional(),
-  inStock: z.boolean().default(true),
-  specifications: z
-    .object({
-      purity: z.string().optional(),
-      appearance: z.string().optional(),
-      solubility: z.string().optional(),
-      storage: z.string().optional(),
-    })
-    .optional(),
+  slug: optionalString,
+  description: optionalString,
+  category: optionalString,
+  categoryId: optionalString,
+  image: optionalString,
+  // Industrial equipment specifications
+  productType: optionalString,
+  capacity: optionalString,
+  screenDimension: optionalString,
+  numberOfDecks: optionalString,
+  motorPower: optionalString,
+  gyratoryCircular: optionalString,
+  specialFeatures: optionalString,
+  availability: optionalString,
+  featured: z.boolean().default(false),
 }).transform((data) => ({
   ...data,
   slug: data.slug || generateSlug(data.name),
@@ -34,21 +36,24 @@ export const productSchema = z.object({
 export const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
   slug: z.string().min(1, "Slug is required").optional(),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  image: z.string().optional(),
 }).transform((data) => ({
   ...data,
   slug: data.slug || generateSlug(data.name),
 }))
 
 export const enquirySchema = z.object({
-  type: z.enum(["general", "product", "bulk", "service"]),
+  type: z.enum(["general", "product", "general_product", "bulk", "service"]),
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   company: z.string().optional(),
   productName: z.string().optional(),
-  quantity: z.string().optional(),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  productCategory: z.string().optional(),
+  selectedProductId: z.string().optional(),
+  message: z.string().optional(),
 })
 
 export type ProductInput = z.infer<typeof productSchema>

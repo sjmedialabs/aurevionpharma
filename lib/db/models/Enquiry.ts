@@ -22,10 +22,9 @@ const EnquirySchema = new Schema<EnquiryDocument>(
     phone: String,
     company: String,
     productName: String,
-    casNumber: String,
-    therapeutic: String,
-    quantity: String,
-    message: String, // Make message completely optional, no required: false needed
+    productCategory: String, // Category of the product
+    selectedProductId: String, // ID of selected product
+    message: String,
     status: {
       type: String,
       enum: ["pending", "contacted", "resolved"],

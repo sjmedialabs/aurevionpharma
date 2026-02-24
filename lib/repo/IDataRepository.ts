@@ -7,6 +7,10 @@ import type {
   AboutPageContent,
   ContactPageContent,
   FooterContent,
+  GalleryItem,
+  Client,
+  Testimonial,
+  Settings,
 } from "@/types"
 
 export interface IDataRepository {
@@ -60,4 +64,28 @@ export interface IDataRepository {
   // Footer Content
   getFooterContent(): Promise<FooterContent>
   updateFooterContent(content: Partial<FooterContent>): Promise<FooterContent>
+
+  // Gallery
+  getAllGalleryItems(): Promise<GalleryItem[]>
+  getGalleryItemById(id: string): Promise<GalleryItem | null>
+  createGalleryItem(item: Omit<GalleryItem, "id" | "createdAt" | "updatedAt">): Promise<GalleryItem>
+  updateGalleryItem(id: string, item: Partial<GalleryItem>): Promise<GalleryItem | null>
+  deleteGalleryItem(id: string): Promise<boolean>
+
+  // Clients
+  getAllClients(): Promise<Client[]>
+  getClientById(id: string): Promise<Client | null>
+  createClient(client: Omit<Client, "id" | "createdAt" | "updatedAt">): Promise<Client>
+  updateClient(id: string, client: Partial<Client>): Promise<Client | null>
+  deleteClient(id: string): Promise<boolean>
+
+  // Testimonials
+  getAllTestimonials(): Promise<Testimonial[]>
+  getTestimonialById(id: string): Promise<Testimonial | null>
+  createTestimonial(testimonial: Omit<Testimonial, "id" | "createdAt" | "updatedAt">): Promise<Testimonial>
+  updateTestimonial(id: string, testimonial: Partial<Testimonial>): Promise<Testimonial | null>
+  deleteTestimonial(id: string): Promise<boolean>
+
+  // Settings
+  getSettings(): Promise<Settings | null>
 }

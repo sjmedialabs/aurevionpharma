@@ -38,23 +38,35 @@ export function MediaUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const getAcceptString = () => {
-    if (accept === "image") return "image/*"
+    if (accept === "image") {
+      // Allow .ico for favicons when uploadType is icon
+      return uploadType === "icon" ? "image/*,.ico" : "image/*"
+    }
     if (accept === "video") return "video/*"
     return "image/*,video/*"
   }
 
   const getAllowedTypes = () => {
-    if (accept === "image") return ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if (accept === "image") {
+      if (uploadType === "icon") {
+        return [...imageTypes, "image/x-icon", "image/vnd.microsoft.icon"]
+      }
+      return imageTypes
+    }
     if (accept === "video") return ["video/mp4", "video/webm", "video/ogg"]
     return ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm"]
   }
 
   const validateFile = (file: File): string | null => {
     const allowedTypes = getAllowedTypes()
-    
+    const isIcoByName = uploadType === "icon" && /\.ico$/i.test(file.name)
+    const typeOk = allowedTypes.includes(file.type) || isIcoByName
+
     // Check file type
-    if (!allowedTypes.includes(file.type)) {
-      return `File type not allowed. Accepted: ${allowedTypes.map(type => type.split('/')[1].toUpperCase()).join(', ')}`
+    if (!typeOk) {
+      const accepted = uploadType === "icon" ? "PNG, ICO, JPEG, WebP, GIF" : allowedTypes.map(type => type.split('/')[1].toUpperCase()).join(', ')
+      return `File type not allowed. Accepted: ${accepted}`
     }
 
     // Check file size
@@ -170,47 +182,63 @@ export function MediaUpload({
     <div className="space-y-3">
       {/* Current File Display */}
       {hasFile && (
-        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
-          {/* Small Thumbnail */}
-          <div className="flex-shrink-0">
-            {isImage ? (
-              <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-700">
-                <img
-                  src={value}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder.jpg"
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                <Play className="h-6 w-6 text-blue-600" />
-              </div>
-            )}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+            {/* Small Thumbnail */}
+            <div className="flex-shrink-0">
+              {isImage ? (
+                <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-700">
+                  <img
+                    src={value}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                  <Play className="h-6 w-6 text-blue-600" />
+                </div>
+              )}
+            </div>
+            
+            {/* File Info */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                {value.split('/').pop() || 'Media file'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {isImage ? 'Image' : 'Video'} • Ready
+              </p>
+            </div>
+            
+            {/* Replace / Remove Buttons */}
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={openFileDialog}
+                disabled={isLoading}
+                className="h-8"
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                Replace
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleRemove}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          
-          {/* File Info */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-              {value.split('/').pop() || 'Media file'}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {isImage ? 'Image' : 'Video'} • Ready
-            </p>
-          </div>
-          
-          {/* Remove Button */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleRemove}
-            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {isLoading && <Progress value={uploadProgress} className="h-1" />}
         </div>
       )}
 

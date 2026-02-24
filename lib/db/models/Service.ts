@@ -19,6 +19,12 @@ const ServiceSchema = new Schema<ServiceDocument>({
   image: String, // Make optional
   features: [String],
   featured: { type: Boolean, default: false }, // Add featured field
+  
+  // SEO fields
+  metaTitle: { type: String },
+  metaDescription: { type: String },
+  metaKeywords: [{ type: String }],
+  
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 })

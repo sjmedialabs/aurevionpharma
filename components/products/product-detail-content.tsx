@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
 import type { Product } from "@/types"
 import { Button } from "@/components/ui/button"
 import { EnquiryModal } from "@/components/products/enquiry-modal"
@@ -18,100 +16,105 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
   return (
     <>
       <div className="container mx-auto px-4 py-16">
-        <div className="mb-8">
-          <Link
-            href="/products"
-            className="inline-flex items-center gap-2 font-sans text-sm font-medium text-primary transition-colors hover:text-primary/80"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Products
-          </Link>
-        </div>
-
-        {/* Chemical Structure Section */}
-        <div className="mb-12 flex justify-center">
-          <div className="relative h-[300px] w-full max-w-2xl">
-            <Image
-              src={product.image || "/chemical-molecular-structure-hexagonal-diagram.jpg"}
-              alt={`${product.name} molecular structure`}
-              fill
-              className="object-contain"
-            />
-          </div>
-        </div>
-
-        {/* Product Description Section */}
-        <div className="mb-12 text-center">
-          <h2 className="mb-6 font-sans text-3xl font-semibold text-primary">Product Description</h2>
-          <p className="mx-auto max-w-4xl font-sans text-base leading-relaxed text-muted-foreground">
-            {product.description}
-          </p>
-        </div>
-
-        {/* Key Features and Details */}
-        <div className="mb-8 text-center">
-          <h3 className="mb-2 font-sans text-xl font-semibold text-foreground">Key features and details</h3>
-          <p className="font-sans text-lg text-muted-foreground">SKU:{product.id.toUpperCase()}</p>
-        </div>
-
-        {/* Product Details Table */}
-        <div className="mx-auto max-w-3xl">
-          <div className="overflow-hidden rounded-lg border border-border bg-card">
-            <table className="w-full">
-              <tbody className="divide-y divide-border">
-                <tr className="hover:bg-muted/50">
-                  <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">Product Name</td>
-                  <td className="px-6 py-4 font-sans text-sm text-muted-foreground">{product.name}</td>
-                </tr>
-                <tr className="hover:bg-muted/50">
-                  <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">CAS Number</td>
-                <tr className="hover:bg-muted/50">
-                  <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">Category</td>
-                  <td className="px-6 py-4 font-sans text-sm text-muted-foreground">{product.category}</td>
-                </tr>
-                  <td className="px-6 py-4 font-sans text-sm text-muted-foreground">{product.casNumber}</td>
-                </tr>
-                {product.molecularFormula && (
-                  <tr className="hover:bg-muted/50">
-                    <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">Molecular Formula</td>
-                    <td className="px-6 py-4 font-sans text-sm text-muted-foreground">{product.molecularFormula}</td>
-                  </tr>
-                )}
-                {product.molecularWeight && (
-                  <tr className="hover:bg-muted/50">
-                    <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">Molecular Weight</td>
-                    <td className="px-6 py-4 font-sans text-sm text-muted-foreground">
-                      {product.molecularWeight} g/mol
-                    </td>
-                  </tr>
-                )}
-                {product.hsCode && (
-                  <tr className="hover:bg-muted/50">
-                    <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">MDL Number</td>
-                    <td className="px-6 py-4 font-sans text-sm text-muted-foreground">{product.hsCode}</td>
-                  </tr>
-                )}
-                {product.specifications?.purity && (
-                  <tr className="hover:bg-muted/50">
-                    <td className="px-6 py-4 font-sans text-sm font-medium text-foreground">Packaging size</td>
-                    <td className="px-6 py-4 font-sans text-sm text-muted-foreground">
-                      {product.specifications.purity}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Product Image */}
+          <div className="lg:w-1/3">
+            <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden">
+              <Image
+                src={product.image || "/images/placeholder.png"}
+                alt={product.name}
+                fill
+                className="object-contain p-4"
+              />
+            </div>
           </div>
 
-          {/* Enquiry Button */}
-          <div className="mt-8 flex justify-center">
-            <Button
-              onClick={() => setIsEnquiryOpen(true)}
-              size="lg"
-              className="rounded-full px-12 font-sans text-base font-medium"
-            >
-              Enquiry Now
-            </Button>
+          {/* Product Details */}
+          <div className="lg:w-2/3">
+            {/* Product Title */}
+            <h1 className="text-2xl font-semibold text-[#1a2847] mb-6">
+              {product.name}
+            </h1>
+
+            {/* Description */}
+            {product.description && (
+              <div className="mb-8">
+                <p className="text-gray-600 leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
+            {/* Key Features and Details */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-[#e87c2e] mb-4">Key features and details</h3>
+              
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <tbody className="divide-y">
+                    {product.productType && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700 w-1/3">Product Type</td>
+                        <td className="px-4 py-3 text-gray-600">{product.productType}</td>
+                      </tr>
+                    )}
+                    {product.capacity && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Capacity</td>
+                        <td className="px-4 py-3 text-gray-600">{product.capacity}</td>
+                      </tr>
+                    )}
+                    {product.screenDimension && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Screen Dimension</td>
+                        <td className="px-4 py-3 text-gray-600">{product.screenDimension}</td>
+                      </tr>
+                    )}
+                    {product.numberOfDecks && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Number of Decks</td>
+                        <td className="px-4 py-3 text-gray-600">{product.numberOfDecks}</td>
+                      </tr>
+                    )}
+                    {product.motorPower && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Motor Power</td>
+                        <td className="px-4 py-3 text-gray-600">{product.motorPower}</td>
+                      </tr>
+                    )}
+                    {product.gyratoryCircular && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Gyratory / Circular</td>
+                        <td className="px-4 py-3 text-gray-600">{product.gyratoryCircular}</td>
+                      </tr>
+                    )}
+                    {product.specialFeatures && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Special Features</td>
+                        <td className="px-4 py-3 text-gray-600">{product.specialFeatures}</td>
+                      </tr>
+                    )}
+                    {product.availability && (
+                      <tr>
+                        <td className="px-4 py-3 bg-gray-50 font-medium text-gray-700">Availability</td>
+                        <td className="px-4 py-3 text-gray-600">{product.availability}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Enquiry Button */}
+            <div>
+              <Button
+                onClick={() => setIsEnquiryOpen(true)}
+                size="lg"
+                className="bg-[#1a2847] hover:bg-[#2a3a5a] rounded-full px-12"
+              >
+                Enquiry Now
+              </Button>
+            </div>
           </div>
         </div>
       </div>

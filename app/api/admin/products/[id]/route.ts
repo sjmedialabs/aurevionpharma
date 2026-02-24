@@ -20,12 +20,10 @@ async function updateProduct(request: NextRequest, params: Promise<{ id: string 
     const { id } = await params
     const data = await request.json()
 
-    console.log("Updating product with data:", data)
-
-    // Basic validation
-    if (!data.name || !data.casNumber || !data.description) {
+    // Basic validation - only name is required
+    if (!data.name) {
       return NextResponse.json(
-        { error: "Missing required fields: name, casNumber, description" },
+        { error: "Missing required field: name" },
         { status: 400 }
       )
     }
@@ -41,20 +39,29 @@ async function updateProduct(request: NextRequest, params: Promise<{ id: string 
       }
     }
 
-    // Prepare update data
-    const updateData = {
+    // Prepare update data for industrial equipment
+    const updateData: any = {
       name: data.name,
-      casNumber: data.casNumber,
-      description: data.description,
+      description: data.description || null,
       category: categoryName,
-      molecularFormula: data.molecularFormula || undefined,
-      molecularWeight: data.molecularWeight || undefined,
-      inStock: data.inStock !== undefined ? data.inStock : true,
-      image: data.image || undefined,
-      slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-")
+      categoryId: data.categoryId || null,
+      image: data.image || null,
+      slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-"),
+      // Industrial equipment specifications
+      productType: data.productType || null,
+      capacity: data.capacity || null,
+      screenDimension: data.screenDimension || null,
+      numberOfDecks: data.numberOfDecks || null,
+      motorPower: data.motorPower || null,
+      gyratoryCircular: data.gyratoryCircular || null,
+      specialFeatures: data.specialFeatures || null,
+      availability: data.availability || "In Stock",
+      featured: data.featured || false,
+      // SEO fields
+      metaTitle: data.metaTitle || null,
+      metaDescription: data.metaDescription || null,
+      metaKeywords: data.metaKeywords || [],
     }
-
-    console.log("Processed update data:", updateData)
 
     const repo = getRepository()
     const product = await repo.updateProduct(id, updateData)
@@ -63,7 +70,6 @@ async function updateProduct(request: NextRequest, params: Promise<{ id: string 
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
     }
 
-    console.log("Product updated successfully:", product.name)
     return NextResponse.json(product)
   } catch (error: any) {
     console.error("Failed to update product:", error)

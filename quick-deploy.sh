@@ -17,7 +17,7 @@ npm ci
 npm run build
 
 # Restart with PM2
-pm2 restart aurevion-pharma
+pm2 restart kk-engineering
 
 echo "✅ Deployment complete!"
-pm2 status aurevion-pharma
+pm2 status kk-engineering

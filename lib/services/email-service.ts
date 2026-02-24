@@ -1,77 +1,82 @@
-import * as nodemailer from 'nodemailer'
-import { google } from 'googleapis'
+import * as nodemailer from "nodemailer";
+import { google } from "googleapis";
 
 // OAuth2 configuration (for Gmail if needed in future)
 const OAUTH_CONFIG = {
   clientId: process.env.GMAIL_CLIENT_ID,
   clientSecret: process.env.GMAIL_CLIENT_SECRET,
   refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-  user: process.env.SMTP_USER || 'sales@aurevionpharma.com',
-}
+  user: process.env.SMTP_USER || "sales@kkengineeringpharma.com",
+};
 
 // Email configuration - support both SSL (465) and TLS (587)
 const SMTP_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465, false for other ports
-}
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: parseInt(process.env.SMTP_PORT || "587") === 465, // true for 465, false for other ports
+};
 
 const COMPANY_INFO = {
-  name: 'Aurevion Pharmaceuticals',
-  email: 'sales@aurevionpharma.com',
-  adminEmail: 'sales@aurevionpharma.com',
-  ccEmail: 'sudheer@sjmedialabs.com',
-  phone: '+91 9963274091',
-  website: 'https://aurevionpharma.com',
-}
+  name: "KK Engineeringceuticals",
+  email: "sales@kkengineeringpharma.com",
+  adminEmail: "sales@kkengineeringpharma.com",
+  ccEmail: "sudheer@sjmedialabs.com",
+  phone: "+91 9963274091",
+  website: "https://kkengineeringpharma.com",
+};
 
 // Create OAuth2 client and get access token
 async function getOAuth2AccessToken() {
   const oauth2Client = new google.auth.OAuth2(
     OAUTH_CONFIG.clientId,
     OAUTH_CONFIG.clientSecret,
-    'https://developers.google.com/oauthplayground'
-  )
+    "https://developers.google.com/oauthplayground",
+  );
 
   oauth2Client.setCredentials({
     refresh_token: OAUTH_CONFIG.refreshToken,
-  })
+  });
 
   try {
-    const accessToken = await oauth2Client.getAccessToken()
-    return accessToken.token
+    const accessToken = await oauth2Client.getAccessToken();
+    return accessToken.token;
   } catch (error) {
-    console.error('Failed to get OAuth2 access token:', error)
-    throw error
+    console.error("Failed to get OAuth2 access token:", error);
+    throw error;
   }
 }
 
 // Create reusable transporter object with OAuth2 or fallback to app password
 const createTransport = async () => {
   // Try OAuth2 first (for Gmail only)
-  if (OAUTH_CONFIG.clientId && OAUTH_CONFIG.clientSecret && OAUTH_CONFIG.refreshToken && OAUTH_CONFIG.user) {
+  if (
+    OAUTH_CONFIG.clientId &&
+    OAUTH_CONFIG.clientSecret &&
+    OAUTH_CONFIG.refreshToken &&
+    OAUTH_CONFIG.user
+  ) {
     try {
-      const accessToken = await getOAuth2AccessToken()
-      
+      const accessToken = await getOAuth2AccessToken();
+
       const transporter = nodemailer.createTransport({
         host: SMTP_CONFIG.host,
         port: SMTP_CONFIG.port,
         secure: SMTP_CONFIG.secure,
         auth: {
-          type: 'OAuth2',
+          type: "OAuth2",
           user: OAUTH_CONFIG.user,
           clientId: OAUTH_CONFIG.clientId,
           clientSecret: OAUTH_CONFIG.clientSecret,
           refreshToken: OAUTH_CONFIG.refreshToken,
           accessToken: accessToken,
         },
-      })
+      });
 
-      console.log('✅ Email service configured with OAuth2')
-      return transporter
+      console.log("✅ Email service configured with OAuth2");
+      return transporter;
     } catch (error) {
-      console.error('❌ Failed to create OAuth2 transporter:', error)
-      console.log('⚠️  Falling back to password authentication...')
+      console.error("❌ Failed to create OAuth2 transporter:", error);
+      console.log("⚠️  Falling back to password authentication...");
     }
   }
 
@@ -86,112 +91,116 @@ const createTransport = async () => {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
-      })
-      
-      console.log(`✅ Email service configured (${SMTP_CONFIG.host}:${SMTP_CONFIG.port}, secure: ${SMTP_CONFIG.secure})`)
-      return transporter
+      });
+
+      console.log(
+        `✅ Email service configured (${SMTP_CONFIG.host}:${SMTP_CONFIG.port}, secure: ${SMTP_CONFIG.secure})`,
+      );
+      return transporter;
     } catch (error) {
-      console.error('Failed to create email transporter with password:', error)
-      return null
+      console.error("Failed to create email transporter with password:", error);
+      return null;
     }
   }
 
-  console.warn('❌ SMTP credentials not configured. Email service disabled.')
-  return null
-}
+  console.warn("❌ SMTP credentials not configured. Email service disabled.");
+  return null;
+};
 
 export const sendEnquiryAutoReply = async (enquiry: {
-  email: string
-  name: string
-  type: string
-  productName?: string
-  casNumber?: string
-  message?: string
+  email: string;
+  name: string;
+  type: string;
+  productName?: string;
+  casNumber?: string;
+  message?: string;
 }) => {
-  const transporter = await createTransport()
+  const transporter = await createTransport();
   if (!transporter) {
-    console.log('Email service not configured, skipping auto-reply')
-    return { success: false, message: 'Email service not configured' }
+    console.log("Email service not configured, skipping auto-reply");
+    return { success: false, message: "Email service not configured" };
   }
 
   try {
-    const subject = getSubjectByType(enquiry.type)
-    const htmlContent = generateEmailTemplate(enquiry)
+    const subject = getSubjectByType(enquiry.type);
+    const htmlContent = generateEmailTemplate(enquiry);
 
     const mailOptions = {
       from: `"${COMPANY_INFO.name}" <${COMPANY_INFO.email}>`,
       to: enquiry.email,
       subject: subject,
       html: htmlContent,
-    }
+    };
 
-    const info = await transporter.sendMail(mailOptions)
-    console.log('✅ Auto-reply email sent:', info.messageId)
-    
-    return { success: true, messageId: info.messageId }
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Auto-reply email sent:", info.messageId);
+
+    return { success: true, messageId: info.messageId };
   } catch (error: any) {
-    console.error('❌ Failed to send auto-reply email:', error)
-    return { success: false, error: error.message }
+    console.error("❌ Failed to send auto-reply email:", error);
+    return { success: false, error: error.message };
   }
-}
+};
 
 const getSubjectByType = (type: string): string => {
   switch (type) {
-    case 'product':
-      return `Thank You for Your API Enquiry - ${COMPANY_INFO.name}`
-    case 'general_product':
-      return `Thank You for Your Product Enquiry - ${COMPANY_INFO.name}`
-    case 'general':
-      return `Thank You for Contacting ${COMPANY_INFO.name}`
+    case "product":
+      return `Thank You for Your API Enquiry - ${COMPANY_INFO.name}`;
+    case "general_product":
+      return `Thank You for Your Product Enquiry - ${COMPANY_INFO.name}`;
+    case "general":
+      return `Thank You for Contacting ${COMPANY_INFO.name}`;
     default:
-      return `Thank You for Your Enquiry - ${COMPANY_INFO.name}`
+      return `Thank You for Your Enquiry - ${COMPANY_INFO.name}`;
   }
-}
+};
 
 const generateEmailTemplate = (enquiry: {
-  name: string
-  type: string
-  productName?: string
-  casNumber?: string
-  message?: string
+  name: string;
+  type: string;
+  productName?: string;
+  casNumber?: string;
+  message?: string;
 }): string => {
-  const { name, type, productName, casNumber, message } = enquiry
+  const { name, type, productName, casNumber, message } = enquiry;
 
   const getEnquiryTypeText = () => {
     switch (type) {
-      case 'product':
-        return 'API (Active Pharmaceutical Ingredient) Enquiry'
-      case 'general_product':
-        return 'Product Enquiry'
-      case 'general':
-        return 'General Enquiry'
+      case "product":
+        return "API (Active Pharmaceutical Ingredient) Enquiry";
+      case "general_product":
+        return "Product Enquiry";
+      case "general":
+        return "General Enquiry";
       default:
-        return 'Enquiry'
+        return "Enquiry";
     }
-  }
+  };
 
   const getEnquirySpecificContent = () => {
-    if (type === 'product' || type === 'general_product') {
+    if (type === "product" || type === "general_product") {
       return `
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h3 style="color: #2563eb; margin: 0 0 10px 0; font-size: 16px;">Enquiry Details:</h3>
-          ${productName ? `<p style="margin: 5px 0;"><strong>Product Name:</strong> ${productName}</p>` : ''}
-          ${casNumber ? `<p style="margin: 5px 0;"><strong>CAS Number:</strong> ${casNumber}</p>` : ''}
-          ${message ? `<p style="margin: 5px 0;"><strong>Your Message:</strong></p><p style="margin: 5px 0; font-style: italic;">"${message}"</p>` : ''}
+          ${productName ? `<p style="margin: 5px 0;"><strong>Product Name:</strong> ${productName}</p>` : ""}
+          ${casNumber ? `<p style="margin: 5px 0;"><strong>CAS Number:</strong> ${casNumber}</p>` : ""}
+          ${message ? `<p style="margin: 5px 0;"><strong>Your Message:</strong></p><p style="margin: 5px 0; font-style: italic;">"${message}"</p>` : ""}
         </div>
-      `
+      `;
     }
-    return message ? `
+    return message
+      ? `
       <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
         <h3 style="color: #2563eb; margin: 0 0 10px 0; font-size: 16px;">Your Message:</h3>
         <p style="margin: 0; font-style: italic;">"${message}"</p>
       </div>
-    ` : ''
-  }
+    `
+      : "";
+  };
 
   const getNextStepsContent = () => {
     switch (type) {
-      case 'product':
+      case "product":
         return `
           <h3 style="color: #2563eb; margin: 20px 0 10px 0;">What Happens Next?</h3>
           <ul style="color: #4b5563; line-height: 1.6; margin: 0; padding-left: 20px;">
@@ -200,8 +209,8 @@ const generateEmailTemplate = (enquiry: {
             <li>You'll receive a detailed quotation with pricing and delivery timelines</li>
             <li>Our team will assist you with regulatory and documentation requirements</li>
           </ul>
-        `
-      case 'general_product':
+        `;
+      case "general_product":
         return `
           <h3 style="color: #2563eb; margin: 20px 0 10px 0;">What Happens Next?</h3>
           <ul style="color: #4b5563; line-height: 1.6; margin: 0; padding-left: 20px;">
@@ -210,7 +219,7 @@ const generateEmailTemplate = (enquiry: {
             <li>You'll receive pricing and availability information</li>
             <li>Our team will guide you through the ordering process</li>
           </ul>
-        `
+        `;
       default:
         return `
           <h3 style="color: #2563eb; margin: 20px 0 10px 0;">What Happens Next?</h3>
@@ -219,9 +228,9 @@ const generateEmailTemplate = (enquiry: {
             <li>A specialist will contact you within 24 hours</li>
             <li>We'll provide you with the information and assistance you need</li>
           </ul>
-        `
+        `;
     }
-  }
+  };
 
   return `
     <!DOCTYPE html>
@@ -235,7 +244,7 @@ const generateEmailTemplate = (enquiry: {
       
       <!-- Header -->
       <div style="text-align: center; margin-bottom: 30px;">
-        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AUREVION-PHARMA-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png" 
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kk-engineering-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png" 
              alt="${COMPANY_INFO.name}" 
              style="max-height: 60px; width: auto;">
       </div>
@@ -283,29 +292,29 @@ const generateEmailTemplate = (enquiry: {
 
     </body>
     </html>
-  `
-}
+  `;
+};
 
 // Send notification to admin about new enquiry
 export const sendAdminNotification = async (enquiry: {
-  email: string
-  name: string
-  type: string
-  productName?: string
-  casNumber?: string
-  message?: string
-  phone?: string
-  company?: string
+  email: string;
+  name: string;
+  type: string;
+  productName?: string;
+  casNumber?: string;
+  message?: string;
+  phone?: string;
+  company?: string;
 }) => {
-  const transporter = await createTransport()
+  const transporter = await createTransport();
   if (!transporter) {
-    console.log('Email service not configured, skipping admin notification')
-    return { success: false, message: 'Email service not configured' }
+    console.log("Email service not configured, skipping admin notification");
+    return { success: false, message: "Email service not configured" };
   }
 
   try {
-    const subject = `New ${enquiry.type.replace('_', ' ').toUpperCase()} Enquiry from ${enquiry.name}`
-    const htmlContent = generateAdminNotificationTemplate(enquiry)
+    const subject = `New ${enquiry.type.replace("_", " ").toUpperCase()} Enquiry from ${enquiry.name}`;
+    const htmlContent = generateAdminNotificationTemplate(enquiry);
 
     const mailOptions = {
       from: `"${COMPANY_INFO.name} System" <${COMPANY_INFO.email}>`,
@@ -313,29 +322,32 @@ export const sendAdminNotification = async (enquiry: {
       cc: COMPANY_INFO.ccEmail,
       subject: subject,
       html: htmlContent,
-    }
+    };
 
-    const info = await transporter.sendMail(mailOptions)
-    console.log(`✅ Admin notification email sent to: ${COMPANY_INFO.adminEmail}, cc: ${COMPANY_INFO.ccEmail}, messageId: ${info.messageId}`)
-    
-    return { success: true, messageId: info.messageId }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `✅ Admin notification email sent to: ${COMPANY_INFO.adminEmail}, cc: ${COMPANY_INFO.ccEmail}, messageId: ${info.messageId}`,
+    );
+
+    return { success: true, messageId: info.messageId };
   } catch (error: any) {
-    console.error('❌ Failed to send admin notification email:', error)
-    return { success: false, error: error.message }
+    console.error("❌ Failed to send admin notification email:", error);
+    return { success: false, error: error.message };
   }
-}
+};
 
 const generateAdminNotificationTemplate = (enquiry: {
-  email: string
-  name: string
-  type: string
-  productName?: string
-  casNumber?: string
-  message?: string
-  phone?: string
-  company?: string
+  email: string;
+  name: string;
+  type: string;
+  productName?: string;
+  casNumber?: string;
+  message?: string;
+  phone?: string;
+  company?: string;
 }): string => {
-  const { name, email, phone, company, type, productName, casNumber, message } = enquiry
+  const { name, email, phone, company, type, productName, casNumber, message } =
+    enquiry;
 
   return `
     <!DOCTYPE html>
@@ -349,7 +361,7 @@ const generateAdminNotificationTemplate = (enquiry: {
       
       <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
         <h1 style="color: #dc2626; margin: 0;">🔔 New Enquiry Received</h1>
-        <p style="margin: 5px 0 0 0; color: #6b7280;">Type: <strong>${type.replace('_', ' ').toUpperCase()}</strong> | Received: ${new Date().toLocaleString()}</p>
+        <p style="margin: 5px 0 0 0; color: #6b7280;">Type: <strong>${type.replace("_", " ").toUpperCase()}</strong> | Received: ${new Date().toLocaleString()}</p>
       </div>
 
       <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -358,24 +370,32 @@ const generateAdminNotificationTemplate = (enquiry: {
         <div style="margin-bottom: 20px;">
           <p style="margin: 5px 0;"><strong>Name:</strong> ${name}</p>
           <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-          ${phone ? `<p style="margin: 5px 0;"><strong>Phone:</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
-          ${company ? `<p style="margin: 5px 0;"><strong>Company:</strong> ${company}</p>` : ''}
+          ${phone ? `<p style="margin: 5px 0;"><strong>Phone:</strong> <a href="tel:${phone}">${phone}</a></p>` : ""}
+          ${company ? `<p style="margin: 5px 0;"><strong>Company:</strong> ${company}</p>` : ""}
         </div>
 
-        ${(productName || casNumber) ? `
+        ${
+          productName || casNumber
+            ? `
           <h3 style="color: #1f2937; margin: 20px 0 10px 0;">Product Details</h3>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-            ${productName ? `<p style="margin: 5px 0;"><strong>Product Name:</strong> ${productName}</p>` : ''}
-            ${casNumber ? `<p style="margin: 5px 0;"><strong>CAS Number:</strong> ${casNumber}</p>` : ''}
+            ${productName ? `<p style="margin: 5px 0;"><strong>Product Name:</strong> ${productName}</p>` : ""}
+            ${casNumber ? `<p style="margin: 5px 0;"><strong>CAS Number:</strong> ${casNumber}</p>` : ""}
           </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${message ? `
+        ${
+          message
+            ? `
           <h3 style="color: #1f2937; margin: 20px 0 10px 0;">Message</h3>
           <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; border-left: 4px solid #3b82f6;">
             <p style="margin: 0; white-space: pre-wrap;">${message}</p>
           </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <div style="margin-top: 25px; padding: 15px; background-color: #fef3c7; border-radius: 5px; border-left: 4px solid #f59e0b;">
           <p style="margin: 0; color: #92400e;">
@@ -391,5 +411,5 @@ const generateAdminNotificationTemplate = (enquiry: {
 
     </body>
     </html>
-  `
-}
+  `;
+};

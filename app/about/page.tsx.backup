@@ -11,7 +11,7 @@ import { WhyLabrix } from "@/components/about/why-labrix"
 export const metadata: Metadata = generateSEOMetadata({
   title: "About Us",
   description:
-    "Learn about Aurevion Pharmatech's 16-year journey in pharmaceutical innovation. Discover our mission, vision, values, and commitment to quality in drug discovery.",
+    "Learn about KK Engineeringtech's 16-year journey in pharmaceutical innovation. Discover our mission, vision, values, and commitment to quality in drug discovery.",
   path: "/about",
 })
 

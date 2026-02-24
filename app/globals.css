@@ -37,7 +37,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --font-poppins: "Poppins", sans-serif; /* Assuming Poppins font is defined here */
+  --font-poppins:
+    "Poppins", sans-serif; /* Assuming Poppins font is defined here */
 }
 
 .dark {
@@ -222,60 +223,68 @@
 
 /* Brand Color Utilities */
 .bg-brand-primary {
-  background-color: var(--color-primary, #4384C5);
+  background-color: var(--color-primary, #4384c5);
 }
 
 .bg-brand-secondary {
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
 }
 
 .text-brand-primary {
-  color: var(--color-primary, #4384C5);
+  color: var(--color-primary, #4384c5);
 }
 
 .text-brand-secondary {
-  color: var(--color-secondary, #053C74);
+  color: var(--color-secondary, #053c74);
 }
 
 .border-brand-primary {
-  border-color: var(--color-primary, #4384C5);
+  border-color: var(--color-primary, #4384c5);
 }
 
 .border-brand-secondary {
-  border-color: var(--color-secondary, #053C74);
+  border-color: var(--color-secondary, #053c74);
 }
 
 .hover\:bg-brand-primary:hover {
-  background-color: var(--color-primary, #4384C5);
+  background-color: var(--color-primary, #4384c5);
 }
 
 .hover\:bg-brand-secondary:hover {
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
 }
 
 .hover\:text-brand-primary:hover {
-  color: var(--color-primary, #4384C5);
+  color: var(--color-primary, #4384c5);
 }
 
 .hover\:text-brand-secondary:hover {
-  color: var(--color-secondary, #053C74);
+  color: var(--color-secondary, #053c74);
 }
 
 /* Darker shades for hover states */
 .hover\:bg-brand-primary-dark:hover {
-  background-color: color-mix(in srgb, var(--color-primary, #4384C5) 85%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--color-primary, #4384c5) 85%,
+    black
+  );
 }
 
 .hover\:bg-brand-secondary-dark:hover {
-  background-color: color-mix(in srgb, var(--color-secondary, #053C74) 85%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--color-secondary, #053c74) 85%,
+    black
+  );
 }
 
 .bg-brand-secondary {
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
 }
 
 .text-brand-secondary {
-  color: var(--color-secondary, #053C74);
+  color: var(--color-secondary, #053c74);
 }
 
 /* Button base styles */
@@ -286,7 +295,7 @@
   padding: 0.75rem 2rem;
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-radius: 9999px;
@@ -297,44 +306,52 @@
 }
 
 .btn-primary {
-  background-color: var(--color-primary, #4384C5);
+  background-color: var(--color-primary, #4384c5);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: color-mix(in srgb, var(--color-primary, #4384C5) 85%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--color-primary, #4384c5) 85%,
+    black
+  );
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
   color: white;
 }
 
 .btn-secondary:hover {
-  background-color: color-mix(in srgb, var(--color-secondary, #053C74) 85%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--color-secondary, #053c74) 85%,
+    black
+  );
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 .btn-outline-primary {
   background-color: transparent;
-  color: var(--color-primary, #4384C5);
-  border: 2px solid var(--color-primary, #4384C5);
+  color: var(--color-primary, #4384c5);
+  border: 2px solid var(--color-primary, #4384c5);
 }
 
 .btn-outline-primary:hover {
-  background-color: var(--color-primary, #4384C5);
+  background-color: var(--color-primary, #4384c5);
   color: white;
 }
 
 .btn-outline-secondary {
   background-color: transparent;
-  color: var(--color-secondary, #053C74);
-  border: 2px solid var(--color-secondary, #053C74);
+  color: var(--color-secondary, #053c74);
+  border: 2px solid var(--color-secondary, #053c74);
 }
 
 .btn-outline-secondary:hover {
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
   color: white;
 }
 
@@ -365,13 +382,13 @@
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
   transition: width 0.3s ease;
 }
 
@@ -381,7 +398,7 @@
 
 .nav-link-active::after {
   width: 100%;
-  background-color: var(--color-secondary, #053C74);
+  background-color: var(--color-secondary, #053c74);
 }
 
 /* Brand Text Color Utilities */
@@ -399,4 +416,40 @@
 
 .hover\:text-brand-secondary-text:hover {
   color: var(--color-text-secondary, #333333);
+}
+
+.color-blue-kk {
+  color: #4977bb;
+}
+
+.color-dark-blue-kk {
+  color: #162d68;
+}
+
+.color-gray-kk {
+  color: #656565;
+}
+
+.color-orage-kk {
+  color: #d77423;
+}
+
+.bg-color-blue-kk {
+  background-color: #4977bb;
+}
+
+.bg-color-dark-blue-kk {
+  background-color: #162d68;
+}
+
+.bg-color-gray-kk {
+  background-color: #656565;
+}
+
+.bg-color-orange-kk {
+  background-color: #d77423;
+}
+
+.bg-color-orange-kk:hover {
+  background-color: #d77423;
 }

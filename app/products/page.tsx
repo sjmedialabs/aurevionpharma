@@ -14,41 +14,22 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 50,
-    total: 0,
-    totalPages: 0,
-    hasMore: false
-  })
-  const [filters, setFilters] = useState({
-    category: "",
-    search: "",
-    inStock: "",
-    sort: ""
-  })
+  const [initialCategory, setInitialCategory] = useState("")
+  const [heroData, setHeroData] = useState<{ backgroundImage?: string; title?: string } | null>(null)
 
-  // Initialize filters from URL parameters
+  // Initialize category from URL parameters
   useEffect(() => {
     const categoryParam = searchParams.get("category")
-    const searchParam = searchParams.get("search")
-    
-    if (categoryParam || searchParam) {
-      setFilters(prev => ({
-        ...prev,
-        category: categoryParam || "",
-        search: searchParam || ""
-      }))
+    if (categoryParam) {
+      setInitialCategory(categoryParam)
     }
   }, [searchParams])
 
   useEffect(() => {
     fetchCategories()
-  }, [])
-
-  useEffect(() => {
     fetchProducts()
-  }, [pagination.page, filters])
+    fetchHeroSettings()
+  }, [])
 
   const fetchCategories = async () => {
     try {
@@ -63,20 +44,9 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
-        ...(filters.category && { category: filters.category }),
-        ...(filters.search && { search: filters.search }),
-        ...(filters.inStock && { inStock: filters.inStock }),
-        ...(filters.sort && { sort: filters.sort }),
-      })
-
-      const response = await fetch(`/api/products?${params}`)
+      const response = await fetch(`/api/products?limit=1000`)
       const data = await response.json()
-      
       setProducts(data.products || [])
-      setPagination(prev => ({ ...prev, ...data.pagination }))
     } catch (error) {
       console.error("Failed to fetch products:", error)
     } finally {
@@ -84,28 +54,36 @@ export default function ProductsPage() {
     }
   }
 
-  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }))
-    setPagination(prev => ({ ...prev, page: 1 })) // Reset to page 1 on filter change
+  const fetchHeroSettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      const data = await response.json()
+      if (data?.pageHeroes?.products) {
+        setHeroData(data.pageHeroes.products)
+      }
+    } catch (error) {
+      console.error("Failed to fetch hero settings:", error)
+    }
   }
 
-  const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }))
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const handleFilterChange = (newFilters: any) => {
+    // Filter is now handled by the ProductsGrid component internally
   }
 
   return (
     <>
       <Header />
       <main>
-        <ProductsHero />
+        <ProductsHero 
+          backgroundImage={heroData?.backgroundImage}
+          title={heroData?.title}
+        />
         <ProductsGrid 
           products={products} 
           categories={categories}
           loading={loading}
-          pagination={pagination}
           onFilterChange={handleFilterChange}
-          onPageChange={handlePageChange}
+          initialCategory={initialCategory}
         />
       </main>
       <Footer />

@@ -1,131 +1,115 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import type { Product } from "@/types"
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { X, Search, Check } from "lucide-react"
+import type React from "react";
+import { useState, useEffect } from "react";
+import type { Product, Category } from "@/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { X } from "lucide-react";
 
 interface EnquiryModalProps {
-  isOpen: boolean
-  onClose: () => void
-  product?: Product // If provided, it's a direct product enquiry
+  isOpen: boolean;
+  onClose: () => void;
+  product?: Product;
 }
 
 export function EnquiryModal({ isOpen, onClose, product }: EnquiryModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [allProducts, setAllProducts] = useState<Product[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     mobile: "",
-    casNumber: "",
-    productName: "",
-    therapeutic: "",
+    productCategory: "",
+    selectedProduct: "",
     message: "",
-    agreedToTerms: false,
-  })
+  });
 
-  // Determine enquiry type
-  const enquiryType = product ? "product" : selectedProduct ? "general_product" : "general"
-
-  // Fetch all products for search dropdown (only for general enquiries)
+  // Fetch categories and products
   useEffect(() => {
-    if (isOpen && !product) {
-      fetchAllProducts()
+    if (isOpen) {
+      fetchCategories();
+      fetchAllProducts();
     }
-  }, [isOpen, product])
+  }, [isOpen]);
+
+  // Set initial values if product is provided
+  useEffect(() => {
+    if (isOpen && product) {
+      setFormData((prev) => ({
+        ...prev,
+        productCategory: product.category || "",
+        selectedProduct: product.id || "",
+      }));
+    } else if (isOpen && !product) {
+      setFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        productCategory: "",
+        selectedProduct: "",
+        message: "",
+      });
+    }
+  }, [isOpen, product]);
+
+  // Filter products when category changes
+  useEffect(() => {
+    if (formData.productCategory) {
+      const filtered = allProducts.filter(
+        (p) => p.category === formData.productCategory
+      );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(allProducts);
+    }
+  }, [formData.productCategory, allProducts]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/categories");
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
 
   const fetchAllProducts = async () => {
     try {
-      const response = await fetch("/api/products")
-      const data = await response.json()
-      setAllProducts(data.products || [])
+      const response = await fetch("/api/products?limit=1000");
+      const data = await response.json();
+      setAllProducts(data.products || []);
     } catch (error) {
-      console.error("Failed to fetch products:", error)
-      setAllProducts([])
+      console.error("Failed to fetch products:", error);
     }
-  }
-
-  // Filter products based on search query
-  const filteredProducts = allProducts.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.casNumber.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Update form data when product changes or modal opens
-  useEffect(() => {
-    if (isOpen && product) {
-      // Direct product enquiry
-      setFormData(prev => ({
-        ...prev,
-        casNumber: product.casNumber || "",
-        productName: product.name || "",
-        therapeutic: product.therapeuticArea || product.category || "",
-      }))
-      setSelectedProduct(null)
-      setSearchQuery("")
-    } else if (isOpen && selectedProduct) {
-      // General product enquiry with selected product
-      setFormData(prev => ({
-        ...prev,
-        casNumber: selectedProduct.casNumber || "",
-        productName: selectedProduct.name || "",
-        therapeutic: selectedProduct.therapeuticArea || selectedProduct.category || "",
-      }))
-    } else if (isOpen && !product) {
-      // Reset for general enquiry
-      setFormData(prev => ({
-        ...prev,
-        casNumber: "",
-        productName: "",
-        therapeutic: "",
-      }))
-      setSelectedProduct(null)
-      setSearchQuery("")
-    }
-  }, [isOpen, product, selectedProduct])
-
-  const handleProductSelect = (selectedProduct: Product) => {
-    setSelectedProduct(selectedProduct)
-    setSearchQuery(selectedProduct.name)
-    setShowDropdown(false)
-  }
-
-  const handleSearchInputChange = (value: string) => {
-    setSearchQuery(value)
-    setShowDropdown(value.length > 0)
-    if (value.length === 0) {
-      setSelectedProduct(null)
-    }
-  }
-
-  const clearProductSelection = () => {
-    setSelectedProduct(null)
-    setSearchQuery("")
-    setShowDropdown(false)
-    setFormData(prev => ({
-      ...prev,
-      casNumber: "",
-      productName: "",
-      therapeutic: "",
-    }))
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Form submit triggered', formData)
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Get the selected product name
+    const selectedProductObj = allProducts.find(
+      (p) => p.id === formData.selectedProduct
+    );
 
     try {
       const response = await fetch("/api/enquiries", {
@@ -134,53 +118,59 @@ export function EnquiryModal({ isOpen, onClose, product }: EnquiryModalProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          type: enquiryType,
+          type: product ? "product" : "general_product",
           name: formData.name,
           email: formData.email,
           phone: formData.mobile,
-          productName: formData.productName || undefined,
-          casNumber: formData.casNumber || undefined,
-          therapeutic: formData.therapeutic || undefined,
+          productName: selectedProductObj?.name || product?.name || undefined,
+          productCategory: formData.productCategory || undefined,
+          selectedProductId: formData.selectedProduct || product?.id || undefined,
           message: formData.message,
         }),
-      })
-
-      console.log('Response status:', response.status)
+      });
 
       if (response.ok) {
-        // Reset form and close modal
         setFormData({
           name: "",
           email: "",
           mobile: "",
-          casNumber: "",
-          productName: "",
-          therapeutic: "",
+          productCategory: "",
+          selectedProduct: "",
           message: "",
-          agreedToTerms: false,
-        })
-        setSelectedProduct(null)
-        setSearchQuery("")
-        onClose()
-        alert("Enquiry submitted successfully! We will contact you soon.")
+        });
+        onClose();
+        alert("Enquiry submitted successfully! We will contact you soon.");
       } else {
-        alert("Failed to submit enquiry. Please try again.")
+        alert("Failed to submit enquiry. Please try again.");
       }
     } catch (error) {
-      console.error("Error submitting enquiry:", error)
-      alert("An error occurred. Please try again.")
+      console.error("Error submitting enquiry:", error);
+      alert("An error occurred. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const showProductFields = product || selectedProduct
-  const currentProduct = product || selectedProduct
+  // Get subtitle text
+  const getSubtitle = () => {
+    if (product) {
+      return product.name;
+    }
+    const selectedProd = allProducts.find(p => p.id === formData.selectedProduct);
+    return selectedProd?.name || "Product Enquiry";
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="flex max-h-[90vh] max-w-[500px] flex-col p-0" showCloseButton={false}>
-        {/* Accessibility - Hidden title and description */}
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        className="flex max-h-[90vh] max-w-[500px] flex-col p-0"
+        showCloseButton={false}
+      >
         <DialogTitle className="sr-only">Enquiry Form</DialogTitle>
         <DialogDescription className="sr-only">
           Submit your enquiry and we will get back to you within 24 hours
@@ -196,224 +186,158 @@ export function EnquiryModal({ isOpen, onClose, product }: EnquiryModalProps) {
           <span className="sr-only">Close</span>
         </button>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto p-6 pb-24">
-          {/* Logo and Header */}
-          <div className="mb-4 text-center">
-            <div className="mb-3 flex justify-center">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AUREVION-PHARMA-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png"
-                alt="Aurevion Pharmaceuticals"
-                width={200}
-                height={60}
-                className="h-auto w-auto max-w-[200px]"
-              />
+        {/* Form: scrollable body + fixed footer */}
+        <form
+          onSubmit={handleSubmit}
+          id="enquiry-form"
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          {/* Scrollable form content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {/* Header */}
+            <div className="mb-6 text-center">
+              <h2 className="mb-1 font-sans text-xl font-semibold text-[#1a2847]">
+                Enquiry Now!
+              </h2>
+              <p className="font-sans text-sm text-gray-500">
+                {getSubtitle()}
+              </p>
             </div>
-            <h2 className="mb-1 font-sans text-xl font-semibold text-primary">Enquiry Now!</h2>
-            <p className="font-sans text-xs text-muted-foreground">
-              {enquiryType === "product" && "API (Active Pharmaceutical Ingredient)"}
-              {enquiryType === "general_product" && "Product Enquiry"}
-              {enquiryType === "general" && "General Enquiry"}
-            </p>
+
+            <div className="space-y-4">
+              {/* Name */}
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Name*
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email address*
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Mobile Number */}
+              <div>
+                <Label htmlFor="mobile" className="text-sm font-medium">
+                  Mobile number*{" "}
+                  <span className="text-xs text-red-500">(with country Code)</span>
+                </Label>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  required
+                  value={formData.mobile}
+                  onChange={(e) =>
+                    setFormData({ ...formData, mobile: e.target.value })
+                  }
+                  className="mt-1"
+                  placeholder="+91 1234567890"
+                />
+              </div>
+
+              {/* Product Category */}
+              <div>
+                <Label htmlFor="productCategory" className="text-sm font-medium">
+                  Product Category
+                </Label>
+                <Select
+                  value={formData.productCategory}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, productCategory: value, selectedProduct: "" })
+                  }
+                  disabled={!!product}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select Product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Select Product */}
+              <div>
+                <Label htmlFor="selectedProduct" className="text-sm font-medium">
+                  Select Product
+                </Label>
+                <Select
+                  value={formData.selectedProduct}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, selectedProduct: value })
+                  }
+                  disabled={!!product}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select Product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredProducts.map((prod) => (
+                      <SelectItem key={prod.id} value={prod.id}>
+                        {prod.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Message */}
+              <div>
+                <Label htmlFor="message" className="text-sm font-medium">
+                  Write Message
+                </Label>
+                <Textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) =>
+                    setFormData({ ...formData, message: e.target.value })
+                  }
+                  className="mt-1 min-h-[80px]"
+                  placeholder="Your message..."
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3" id="enquiry-form">
-            {/* Name */}
-            <div>
-              <Label htmlFor="name" className="font-sans text-xs font-normal text-foreground">
-                Name*
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <Label htmlFor="email" className="font-sans text-xs font-normal text-foreground">
-                Email address*
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-
-            {/* Mobile Number */}
-            <div>
-              <Label htmlFor="mobile" className="font-sans text-xs font-normal text-foreground">
-                Mobile number* <span className="text-[10px] text-destructive">(with country Code)</span>
-              </Label>
-              <Input
-                id="mobile"
-                type="tel"
-                required
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                className="mt-1"
-                placeholder="+1234567890"
-              />
-            </div>
-
-            {/* Product Search - only show for general enquiries (navigation) */}
-            {!product && (
-              <div className="relative">
-                <Label className="font-sans text-xs font-normal text-foreground">
-                  Search Product (Optional)
-                </Label>
-                <div className="relative mt-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
-                    placeholder="Search by product name or CAS number..."
-                    className="pl-10"
-                    onFocus={() => setShowDropdown(searchQuery.length > 0)}
-                  />
-                  {selectedProduct && (
-                    <button
-                      type="button"
-                      onClick={clearProductSelection}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-                
-                {/* Product Dropdown */}
-                {showDropdown && filteredProducts.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {filteredProducts.slice(0, 10).map((prod) => (
-                      <button
-                        key={prod.id}
-                        type="button"
-                        onClick={() => handleProductSelect(prod)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-sm">{prod.name}</p>
-                            <p className="text-xs text-gray-500">CAS: {prod.casNumber}</p>
-                          </div>
-                          {selectedProduct?.id === prod.id && (
-                            <Check className="h-4 w-4 text-green-600" />
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Product-specific fields - show when product is selected (any type) */}
-            {showProductFields && (
-              <>
-                {/* CAS Number */}
-                <div>
-                  <Label htmlFor="casNumber" className="font-sans text-xs font-normal text-foreground">
-                    CAS Number* {product && <span className="text-[10px] text-blue-600">(Auto-filled)</span>}
-                    {selectedProduct && <span className="text-[10px] text-green-600">(Selected)</span>}
-                  </Label>
-                  <Input
-                    id="casNumber"
-                    type="text"
-                    required
-                    value={formData.casNumber}
-                    onChange={(e) => setFormData({ ...formData, casNumber: e.target.value })}
-                    className={`mt-1 ${currentProduct ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                    readOnly={!!currentProduct?.casNumber}
-                    disabled={!!currentProduct?.casNumber}
-                  />
-                </div>
-
-                {/* Product Name */}
-                <div>
-                  <Label htmlFor="productName" className="font-sans text-xs font-normal text-foreground">
-                    Product Name* {product && <span className="text-[10px] text-blue-600">(Auto-filled)</span>}
-                    {selectedProduct && <span className="text-[10px] text-green-600">(Selected)</span>}
-                  </Label>
-                  <Input
-                    id="productName"
-                    type="text"
-                    required
-                    value={formData.productName}
-                    onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-                    className={`mt-1 ${currentProduct ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                    readOnly={!!currentProduct?.name}
-                    disabled={!!currentProduct?.name}
-                  />
-                </div>
-
-                {/* Therapeutic */}
-                <div>
-                  <Label htmlFor="therapeutic" className="font-sans text-xs font-normal text-foreground">
-                    Therapeutic*
-                  </Label>
-                  <Input
-                    id="therapeutic"
-                    type="text"
-                    required
-                    value={formData.therapeutic}
-                    onChange={(e) => setFormData({ ...formData, therapeutic: e.target.value })}
-                    className="mt-1"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Message */}
-            <div>
-              <Label htmlFor="message" className="font-sans text-xs font-normal text-foreground">
-                Write Message{showProductFields ? "" : "*"}
-              </Label>
-              <Textarea
-                id="message"
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="mt-1 min-h-[60px]"
-                required={!showProductFields} // Required for general enquiries without product
-                placeholder={showProductFields ? "Additional details about your enquiry..." : "Please describe your enquiry..."}
-              />
-            </div>
-
-            {/* Terms Checkbox */}
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="terms"
-                checked={formData.agreedToTerms}
-                onCheckedChange={(checked) => setFormData({ ...formData, agreedToTerms: checked as boolean })}
-                required
-              />
-              <Label htmlFor="terms" className="cursor-pointer font-sans text-xs leading-relaxed text-muted-foreground">
-                By Providing your contact details, you agree to our Terms of use & Privacy Policy
-              </Label>
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting || !formData.agreedToTerms}
-                className="w-full rounded-full py-5 font-sans text-sm font-medium"
-              >
-                {isSubmitting ? "Submitting..." : "Enquiry Now"}
-              </Button>
-            </div>
-          </form>
-        </div>
+          {/* Fixed form footer with Submit button */}
+          <div className="flex-shrink-0 border-t bg-white p-4">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#1a2847] hover:bg-[#2a3a5a] rounded-full py-5 font-medium"
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

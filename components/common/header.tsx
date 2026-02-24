@@ -1,83 +1,107 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, X, ChevronDown } from "lucide-react"
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { EnquiryModal } from "@/components/products/enquiry-modal"
-import type { Category, Service } from "@/types"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, X, ChevronDown, Beaker } from "lucide-react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { EnquiryModal } from "@/components/products/enquiry-modal";
+import type { Category, Service } from "@/types";
 
 const baseNavigation = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
-]
+];
 
 export function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [services, setServices] = useState<Service[]>([])
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const pathname = usePathname()
-  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const pathname = usePathname();
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
+  const [logo, setLogo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCategories()
-    fetchServices()
-  }, [])
+    fetch("/api/admin/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.branding?.websiteLogo) {
+          setLogo(data.branding.websiteLogo);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchServices();
+  }, []);
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/categories")
+      const response = await fetch("/api/categories");
       if (response.ok) {
-        const data = await response.json()
-        setCategories(data)
+        const data = await response.json();
+        setCategories(data);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error)
+      console.error("Error fetching categories:", error);
     }
-  }
+  };
 
   const fetchServices = async () => {
     try {
-      const response = await fetch("/api/services")
+      const response = await fetch("/api/services");
       if (response.ok) {
-        const data = await response.json()
-        setServices(data)
+        const data = await response.json();
+        setServices(data);
       }
     } catch (error) {
-      console.error("Error fetching services:", error)
+      console.error("Error fetching services:", error);
     }
-  }
+  };
 
   const handleDropdownToggle = (dropdown: string) => {
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown)
-  }
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
 
   const closeDropdowns = () => {
-    setActiveDropdown(null)
-  }
+    setActiveDropdown(null);
+  };
 
   return (
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <nav className="container mx-auto px-4">
+        <nav className="container mx-auto px-4 py-3">
           <div className="flex h-24 items-center justify-between">
             <Link href="/" className="flex items-center">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AUREVION-PHARMA-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png"
-                alt="Aurevion Pharmaceutical"
+              {/* <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kk-engineering-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png"
+                alt="KK Engineeringceutical"
                 width={300}
                 height={90}
                 className="h-[90px] w-auto"
                 priority
-              />
+              /> */}
+
+              {logo ? (
+                <Image
+                  src={logo}
+                  alt="Logo"
+                  width={266}
+                  height={114}
+                  className="object-contain"
+                />
+              ) : (
+                <Beaker className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+              )}
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex lg:items-center lg:gap-6">
               {baseNavigation.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
@@ -91,26 +115,26 @@ export function Header() {
                   >
                     {item.name}
                   </Link>
-                )
+                );
               })}
 
               {/* Services Dropdown */}
               <div className="relative">
                 <button
                   className={`flex items-center gap-1 text-base font-medium text-gray-700 hover:text-primary transition-colors relative pb-1 ${
-                    pathname.startsWith('/services')
+                    pathname.startsWith("/services")
                       ? "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-secondary"
                       : ""
                   }`}
-                  onClick={() => handleDropdownToggle('services')}
-                  onMouseEnter={() => setActiveDropdown('services')}
+                  onClick={() => handleDropdownToggle("services")}
+                  onMouseEnter={() => setActiveDropdown("services")}
                 >
                   Services
                   <ChevronDown className="h-4 w-4" />
                 </button>
-                
-                {activeDropdown === 'services' && (
-                  <div 
+
+                {activeDropdown === "services" && (
+                  <div
                     className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
@@ -140,19 +164,19 @@ export function Header() {
               <div className="relative">
                 <button
                   className={`flex items-center gap-1 text-base font-medium text-gray-700 hover:text-primary transition-colors relative pb-1 ${
-                    pathname.startsWith('/products')
+                    pathname.startsWith("/products")
                       ? "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-secondary"
                       : ""
                   }`}
-                  onClick={() => handleDropdownToggle('products')}
-                  onMouseEnter={() => setActiveDropdown('products')}
+                  onClick={() => handleDropdownToggle("products")}
+                  onMouseEnter={() => setActiveDropdown("products")}
                 >
                   Products
                   <ChevronDown className="h-4 w-4" />
                 </button>
-                
-                {activeDropdown === 'products' && (
-                  <div 
+
+                {activeDropdown === "products" && (
+                  <div
                     className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-96 overflow-y-auto"
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
@@ -164,7 +188,7 @@ export function Header() {
                       All Products
                     </Link>
                     {categories.length > 0 && <hr className="my-2" />}
-                    
+
                     {categories.map((category) => (
                       <Link
                         key={category.id}
@@ -180,9 +204,45 @@ export function Header() {
               </div>
 
               <Link
+                href="/gallery"
+                className={`text-base font-medium text-gray-700 hover:text-primary transition-colors relative pb-1 ${
+                  pathname === "/gallery"
+                    ? "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-secondary"
+                    : ""
+                }`}
+                onClick={closeDropdowns}
+              >
+                Gallery
+              </Link>
+
+              <Link
+                href="/clients"
+                className={`text-base font-medium text-gray-700 hover:text-primary transition-colors relative pb-1 ${
+                  pathname === "/clients"
+                    ? "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-secondary"
+                    : ""
+                }`}
+                onClick={closeDropdowns}
+              >
+                Clients
+              </Link>
+
+              <Link
+                href="/testimonials"
+                className={`text-base font-medium text-gray-700 hover:text-primary transition-colors relative pb-1 ${
+                  pathname === "/testimonials"
+                    ? "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-secondary"
+                    : ""
+                }`}
+                onClick={closeDropdowns}
+              >
+                Testimonials
+              </Link>
+
+              <Link
                 href="/contact"
                 className={`text-base font-medium text-gray-700 hover:text-primary transition-colors relative pb-1 ${
-                  pathname === '/contact'
+                  pathname === "/contact"
                     ? "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-secondary"
                     : ""
                 }`}
@@ -195,16 +255,28 @@ export function Header() {
                 onClick={() => setIsEnquiryModalOpen(true)}
                 className="px-6 py-2.5 text-white font-medium rounded-full transition-colors"
                 style={{ backgroundColor: "var(--color-primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#ef4444")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--color-primary)")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#ef4444")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "var(--color-primary)")
+                }
               >
                 Enquiry Now
               </button>
             </div>
 
             {/* Mobile menu button */}
-            <button className="lg:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <button
+              className="lg:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
 
@@ -212,7 +284,7 @@ export function Header() {
           {mobileMenuOpen && (
             <div className="lg:hidden py-4 space-y-2 border-t">
               {baseNavigation.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
@@ -224,15 +296,17 @@ export function Header() {
                   >
                     {item.name}
                   </Link>
-                )
+                );
               })}
-              
+
               {/* Mobile Services */}
               <div>
                 <Link
                   href="/services"
                   className={`block py-2 text-lg font-medium text-gray-700 hover:text-primary transition-colors ${
-                    pathname.startsWith('/services') ? "text-red-600 font-semibold" : ""
+                    pathname.startsWith("/services")
+                      ? "text-red-600 font-semibold"
+                      : ""
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -259,7 +333,9 @@ export function Header() {
                 <Link
                   href="/products"
                   className={`block py-2 text-lg font-medium text-gray-700 hover:text-primary transition-colors ${
-                    pathname.startsWith('/products') ? "text-red-600 font-semibold" : ""
+                    pathname.startsWith("/products")
+                      ? "text-red-600 font-semibold"
+                      : ""
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -282,9 +358,39 @@ export function Header() {
               </div>
 
               <Link
+                href="/gallery"
+                className={`block py-2 text-lg font-medium text-gray-700 hover:text-primary transition-colors ${
+                  pathname === "/gallery" ? "text-red-600 font-semibold" : ""
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Gallery
+              </Link>
+
+              <Link
+                href="/clients"
+                className={`block py-2 text-lg font-medium text-gray-700 hover:text-primary transition-colors ${
+                  pathname === "/clients" ? "text-red-600 font-semibold" : ""
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Clients
+              </Link>
+
+              <Link
+                href="/testimonials"
+                className={`block py-2 text-lg font-medium text-gray-700 hover:text-primary transition-colors ${
+                  pathname === "/testimonials" ? "text-red-600 font-semibold" : ""
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Testimonials
+              </Link>
+
+              <Link
                 href="/contact"
                 className={`block py-2 text-lg font-medium text-gray-700 hover:text-primary transition-colors ${
-                  pathname === '/contact' ? "text-red-600 font-semibold" : ""
+                  pathname === "/contact" ? "text-red-600 font-semibold" : ""
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -293,8 +399,8 @@ export function Header() {
 
               <button
                 onClick={() => {
-                  setIsEnquiryModalOpen(true)
-                  setMobileMenuOpen(false)
+                  setIsEnquiryModalOpen(true);
+                  setMobileMenuOpen(false);
                 }}
                 className="w-full px-6 py-2.5 text-white font-medium rounded-full transition-colors mt-4"
                 style={{ backgroundColor: "var(--color-primary)" }}
@@ -307,7 +413,10 @@ export function Header() {
       </header>
 
       {/* EnquiryModal component */}
-      <EnquiryModal isOpen={isEnquiryModalOpen} onClose={() => setIsEnquiryModalOpen(false)} />
+      <EnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={() => setIsEnquiryModalOpen(false)}
+      />
     </>
-  )
+  );
 }

@@ -944,80 +944,22 @@ export default function AdminContentPage() {
                       />
                     </div>
 
-                    {/* Intro Features */}
                     <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <Label>Introduction Features</Label>
-                        <Button onClick={addAboutIntroFeature} size="sm">
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Feature
-                        </Button>
-                      </div>
-                      <div className="space-y-4">
-                        {aboutContent.intro?.features?.map((feature, index) => (
-                          <div key={index} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-sm font-medium">Feature {index + 1}</h4>
-                              <Button onClick={() => removeAboutIntroFeature(index)} size="sm" variant="destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="space-y-4">
-                              <div>
-                                <Label>Feature Icon</Label>
-                                <MediaUpload
-                                  value={feature.icon}
-                                  onChange={(url) => {
-                                    const updatedFeatures = [...aboutContent.intro.features]
-                                    updatedFeatures[index].icon = url
-                                    setAboutContent({
-                                      ...aboutContent,
-                                      intro: { ...aboutContent.intro, features: updatedFeatures }
-                                    })
-                                  }}
-                                  accept="image"
-                                  maxWidth={64}
-                                  maxHeight={64}
-                                  aspectRatio="1:1"
-                                  maxSizeMB={1}
-                                  placeholder="Upload feature icon"
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <Label>Title</Label>
-                                  <Input
-                                    value={feature.title}
-                                    onChange={(e) => {
-                                      const updatedFeatures = [...aboutContent.intro.features]
-                                      updatedFeatures[index].title = e.target.value
-                                      setAboutContent({
-                                        ...aboutContent,
-                                        intro: { ...aboutContent.intro, features: updatedFeatures }
-                                      })
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <Label>Description</Label>
-                                  <Textarea
-                                    rows={2}
-                                    value={feature.description}
-                                    onChange={(e) => {
-                                      const updatedFeatures = [...aboutContent.intro.features]
-                                      updatedFeatures[index].description = e.target.value
-                                      setAboutContent({
-                                        ...aboutContent,
-                                        intro: { ...aboutContent.intro, features: updatedFeatures }
-                                      })
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <Label className="mb-2 block">Introduction Image</Label>
+                      <MediaUpload
+                        value={aboutContent.intro?.image || ""}
+                        onChange={(url) =>
+                          setAboutContent({
+                            ...aboutContent,
+                            intro: { ...aboutContent.intro, image: url },
+                          })
+                        }
+                        accept="image"
+                        maxWidth={800}
+                        maxHeight={800}
+                        maxSizeMB={5}
+                        placeholder="Upload introduction section image"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -1576,15 +1518,15 @@ export default function AdminContentPage() {
           <div className="space-y-6">
             {footerContent && (
               <>
-                {/* Basic Footer Info */}
+                {/* Footer Settings */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Footer Basic Information</CardTitle>
-                    <CardDescription>Manage basic footer content</CardDescription>
+                    <CardTitle>Footer Settings</CardTitle>
+                    <CardDescription>Manage footer logo and copyright text. Contact info and social links are managed in Company Settings.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label>Footer Logo</Label>
+                      <Label className="mb-2 block">Footer Logo</Label>
                       <MediaUpload
                         value={footerContent.logo || ""}
                         onChange={(url) =>
@@ -1602,21 +1544,6 @@ export default function AdminContentPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="company-info" className="mb-2 block">Company Information</Label>
-                      <Textarea
-                        id="company-info"
-                        rows={3}
-                        value={footerContent.companyInfo || ""}
-                        onChange={(e) =>
-                          setFooterContent({
-                            ...footerContent,
-                            companyInfo: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div>
                       <Label htmlFor="copyright" className="mb-2 block">Copyright Text</Label>
                       <Input
                         id="copyright"
@@ -1627,283 +1554,15 @@ export default function AdminContentPage() {
                             copyright: e.target.value,
                           })
                         }
+                        placeholder="2025 KK engineering & steam solutions . All rights reserved"
                       />
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Product Links */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Product Links</CardTitle>
-                    <CardDescription>Manage footer product links</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <Label>Product Links</Label>
-                        <Button onClick={addProductLink} size="sm">
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Link
-                        </Button>
-                      </div>
-                      <div className="space-y-4">
-                        {footerContent.productLinks?.map((link, index) => (
-                          <div key={index} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-sm font-medium">Product Link {index + 1}</h4>
-                              <Button onClick={() => removeProductLink(index)} size="sm" variant="destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label>Link Name</Label>
-                                <Input
-                                  value={link.name}
-                                  onChange={(e) => {
-                                    const updatedLinks = [...footerContent.productLinks]
-                                    updatedLinks[index].name = e.target.value
-                                    setFooterContent({
-                                      ...footerContent,
-                                      productLinks: updatedLinks
-                                    })
-                                  }}
-                                />
-                              </div>
-                              <div>
-                                <Label>Link URL</Label>
-                                <Input
-                                  value={link.href}
-                                  onChange={(e) => {
-                                    const updatedLinks = [...footerContent.productLinks]
-                                    updatedLinks[index].href = e.target.value
-                                    setFooterContent({
-                                      ...footerContent,
-                                      productLinks: updatedLinks
-                                    })
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* About Links */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>About Links</CardTitle>
-                    <CardDescription>Manage footer about links</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <Label>About Links</Label>
-                        <Button onClick={addAboutLink} size="sm">
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Link
-                        </Button>
-                      </div>
-                      <div className="space-y-4">
-                        {footerContent.aboutLinks?.map((link, index) => (
-                          <div key={index} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-sm font-medium">About Link {index + 1}</h4>
-                              <Button onClick={() => removeAboutLink(index)} size="sm" variant="destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label>Link Name</Label>
-                                <Input
-                                  value={link.name}
-                                  onChange={(e) => {
-                                    const updatedLinks = [...footerContent.aboutLinks]
-                                    updatedLinks[index].name = e.target.value
-                                    setFooterContent({
-                                      ...footerContent,
-                                      aboutLinks: updatedLinks
-                                    })
-                                  }}
-                                />
-                              </div>
-                              <div>
-                                <Label>Link URL</Label>
-                                <Input
-                                  value={link.href}
-                                  onChange={(e) => {
-                                    const updatedLinks = [...footerContent.aboutLinks]
-                                    updatedLinks[index].href = e.target.value
-                                    setFooterContent({
-                                      ...footerContent,
-                                      aboutLinks: updatedLinks
-                                    })
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Social Media & Newsletter */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Social Media & Newsletter</CardTitle>
-                    <CardDescription>Manage social media links and newsletter settings</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Social Media */}
-                    <div>
-                      <h4 className="text-lg font-medium mb-4">Social Media Links</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="facebook" className="mb-2 block">Facebook URL</Label>
-                          <Input
-                            id="facebook"
-                            value={footerContent.socialMedia?.facebook || ""}
-                            onChange={(e) =>
-                              setFooterContent({
-                                ...footerContent,
-                                socialMedia: { ...footerContent.socialMedia, facebook: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="twitter" className="mb-2 block">Twitter URL</Label>
-                          <Input
-                            id="twitter"
-                            value={footerContent.socialMedia?.twitter || ""}
-                            onChange={(e) =>
-                              setFooterContent({
-                                ...footerContent,
-                                socialMedia: { ...footerContent.socialMedia, twitter: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="linkedin" className="mb-2 block">LinkedIn URL</Label>
-                          <Input
-                            id="linkedin"
-                            value={footerContent.socialMedia?.linkedin || ""}
-                            onChange={(e) =>
-                              setFooterContent({
-                                ...footerContent,
-                                socialMedia: { ...footerContent.socialMedia, linkedin: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="youtube" className="mb-2 block">YouTube URL</Label>
-                          <Input
-                            id="youtube"
-                            value={footerContent.socialMedia?.youtube || ""}
-                            onChange={(e) =>
-                              setFooterContent({
-                                ...footerContent,
-                                socialMedia: { ...footerContent.socialMedia, youtube: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Newsletter */}
-                    <div>
-                      <h4 className="text-lg font-medium mb-4">Newsletter Settings</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="newsletter-heading" className="mb-2 block">Newsletter Heading</Label>
-                          <Input
-                            id="newsletter-heading"
-                            value={footerContent.newsletter?.heading || ""}
-                            onChange={(e) =>
-                              setFooterContent({
-                                ...footerContent,
-                                newsletter: { ...footerContent.newsletter, heading: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="newsletter-placeholder" className="mb-2 block">Newsletter Placeholder</Label>
-                          <Input
-                            id="newsletter-placeholder"
-                            value={footerContent.newsletter?.placeholder || ""}
-                            onChange={(e) =>
-                              setFooterContent({
-                                ...footerContent,
-                                newsletter: { ...footerContent.newsletter, placeholder: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Contact Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Footer Contact Information</CardTitle>
-                    <CardDescription>Manage contact information shown in footer</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="footer-location" className="mb-2 block">Location</Label>
-                      <Textarea
-                        id="footer-location"
-                        rows={2}
-                        value={footerContent.contact?.location || ""}
-                        onChange={(e) =>
-                          setFooterContent({
-                            ...footerContent,
-                            contact: { ...footerContent.contact, location: e.target.value },
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="footer-phone" className="mb-2 block">Phone</Label>
-                        <Input
-                          id="footer-phone"
-                          value={footerContent.contact?.phone || ""}
-                          onChange={(e) =>
-                            setFooterContent({
-                              ...footerContent,
-                              contact: { ...footerContent.contact, phone: e.target.value },
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="footer-email" className="mb-2 block">Email</Label>
-                        <Input
-                          id="footer-email"
-                          type="email"
-                          value={footerContent.contact?.email || ""}
-                          onChange={(e) =>
-                            setFooterContent({
-                              ...footerContent,
-                              contact: { ...footerContent.contact, email: e.target.value },
-                            })
-                          }
-                        />
-                      </div>
+                    <div className="bg-muted p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Note:</strong> The footer displays contact information (address, phone, email, website) and social media links from Company Settings. 
+                        Navigation links are fixed (Home, About, Products, Services, Enquiry, Testimonials, Gallery, Clients, Contact).
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

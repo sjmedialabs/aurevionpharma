@@ -8,6 +8,9 @@ export interface Service {
   slug: string
   features: string[]
   featured?: boolean
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string[]
   createdAt: Date
   updatedAt: Date
   shortDescription?: string // Add this for frontend compatibility
@@ -18,25 +21,23 @@ export interface Product {
   name: string
   slug: string
   description: string
-  casNumber: string
-  hsCode?: string
   category: string
-  subcategory?: string
   categoryId?: string
-  subcategoryId?: string
-  molecularFormula?: string
-  molecularWeight?: string
-  inStock: boolean
-  specifications?: {
-    purity?: string
-    appearance?: string
-    solubility?: string
-    storage?: string
-  }
-  therapeuticArea?: string
-  apiType?: string
   image?: string
-  applications?: string[]
+  // Industrial equipment specifications
+  productType?: string
+  capacity?: string
+  screenDimension?: string
+  numberOfDecks?: string
+  motorPower?: string
+  gyratoryCircular?: string
+  specialFeatures?: string
+  availability?: string
+  featured?: boolean
+  // SEO fields
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string[]
   createdAt: Date
   updatedAt: Date
 }
@@ -47,15 +48,40 @@ export interface Category {
   slug: string
   description: string
   icon?: string
+  image?: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 
-export interface SubCategory {
+export interface GalleryItem {
   id: string
   name: string
-  slug: string
-  description: string
-  categoryId: string
-  category?: Category
+  image: string
+  category?: string
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Client {
+  id: string
+  name: string
+  logo: string
+  website?: string
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Testimonial {
+  id: string
+  name: string
+  title: string
+  company: string
+  content: string
+  image?: string
+  rating?: number
+  featured: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -68,9 +94,8 @@ export interface Enquiry {
   phone?: string
   company?: string
   productName?: string
-  casNumber?: string
-  therapeutic?: string
-  quantity?: string
+  productCategory?: string
+  selectedProductId?: string
   message?: string
   status: "pending" | "contacted" | "resolved"
   createdAt: Date
@@ -132,11 +157,7 @@ export interface AboutPageContent {
     badge: string
     title: string
     description: string
-    features: Array<{
-      icon: string
-      title: string
-      description: string
-    }>
+    image?: string
   }
   vision: {
     badge: string
@@ -218,5 +239,86 @@ export interface FooterContent {
     email: string
   }
   copyright: string
+  updatedAt: Date
+}
+
+export interface PageHero {
+  backgroundImage: string
+  title: string
+}
+
+export interface Settings {
+  id: string
+  seo: {
+    siteName: string
+    siteDescription: string
+    siteUrl: string
+    ogImage: string
+    twitterHandle: string
+    keywords: string[]
+    pages: {
+      home: { title: string; description: string; keywords: string[] }
+      about: { title: string; description: string; keywords: string[] }
+      products: { title: string; description: string; keywords: string[] }
+      services: { title: string; description: string; keywords: string[] }
+      gallery: { title: string; description: string; keywords: string[] }
+      clients: { title: string; description: string; keywords: string[] }
+      testimonials: { title: string; description: string; keywords: string[] }
+      contact: { title: string; description: string; keywords: string[] }
+    }
+  }
+  pageHeroes: {
+    products: PageHero
+    services: PageHero
+    gallery: PageHero
+    clients: PageHero
+    testimonials: PageHero
+  }
+  branding: {
+    websiteLogo: string
+    websiteFavicon: string
+    dashboardLogo: string
+    dashboardFavicon: string
+    colors: {
+      primary: string
+      secondary: string
+      primaryTextColor: string
+      secondaryTextColor: string
+    }
+    fonts: {
+      primaryFont: string
+      secondaryFont: string
+      paragraphFont: string
+      sizes: {
+        h1: string
+        h2: string
+        h3: string
+        h4: string
+        h5: string
+        h6: string
+        paragraph: string
+      }
+    }
+  }
+  company: {
+    name: string
+    address: {
+      street: string
+      city: string
+      state: string
+      zipCode: string
+      country: string
+    }
+    phone: string
+    email: string
+    socialMedia: {
+      facebook?: string
+      twitter?: string
+      linkedin?: string
+      youtube?: string
+      instagram?: string
+      whatsapp?: string
+    }
+  }
   updatedAt: Date
 }

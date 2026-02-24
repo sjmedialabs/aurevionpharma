@@ -1,27 +1,27 @@
-import type { Metadata } from "next"
-import { connectDB } from "@/lib/db/mongodb"
-import { SettingsModel } from "@/lib/db/models/Settings"
+import type { Metadata } from "next";
+import { connectDB } from "@/lib/db/mongodb";
+import { SettingsModel } from "@/lib/db/models/Settings";
 
 export const siteConfig = {
-  name: "Aurevion Pharmatech Pvt Ltd",
+  name: "KK Engineeringtech Pvt Ltd",
   description:
     "Leading pharmaceutical company specializing in high-quality APIs, CMO, CDMO, and partnering services for global pharma needs.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://aurevion.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://kkengineering.com",
   ogImage: "/og-image.jpg",
   links: {
-    twitter: "https://twitter.com/aurevion",
-    linkedin: "https://linkedin.com/company/aurevion",
+    twitter: "https://twitter.com/kkengineering",
+    linkedin: "https://linkedin.com/company/kkengineering",
   },
-}
+};
 
 async function getSettings() {
   try {
-    await connectDB()
-    const settings = await SettingsModel.findOne().lean()
-    return settings
+    await connectDB();
+    const settings = await SettingsModel.findOne().lean();
+    return settings;
   } catch (error) {
-    console.error("Error fetching settings:", error)
-    return null
+    console.error("Error fetching settings:", error);
+    return null;
   }
 }
 
@@ -32,18 +32,19 @@ export async function generateSEOMetadata({
   path = "",
   noIndex = false,
 }: {
-  title?: string
-  description?: string
-  image?: string
-  path?: string
-  noIndex?: boolean
+  title?: string;
+  description?: string;
+  image?: string;
+  path?: string;
+  noIndex?: boolean;
 }): Promise<Metadata> {
-  const settings = await getSettings()
-  const seoSettings = settings?.seo || {}
-  
+  const settings = await getSettings();
+  const seoSettings = settings?.seo || {};
+
   // Use SEO settings from database, fallback to parameters, then to defaults
-  const metaTitle = seoSettings.metaTitle || title || siteConfig.name
-  const metaDescription = seoSettings.metaDescription || description || siteConfig.description
+  const metaTitle = seoSettings.metaTitle || title || siteConfig.name;
+  const metaDescription =
+    seoSettings.metaDescription || description || siteConfig.description;
   const metaKeywords = seoSettings.metaKeywords || [
     "pharmaceutical",
     "APIs",
@@ -53,10 +54,10 @@ export async function generateSEOMetadata({
     "contract manufacturing",
     "drug discovery",
     "pharma partnering",
-  ]
-  
-  const url = `${siteConfig.url}${path}`
-  const ogImage = image || seoSettings.ogImage || siteConfig.ogImage
+  ];
+
+  const url = `${siteConfig.url}${path}`;
+  const ogImage = image || seoSettings.ogImage || siteConfig.ogImage;
 
   return {
     title: metaTitle,
@@ -90,7 +91,7 @@ export async function generateSEOMetadata({
       title: metaTitle,
       description: metaDescription,
       images: [ogImage],
-      creator: seoSettings.twitterHandle || "@aurevion",
+      creator: seoSettings.twitterHandle || "@kkengineering",
     },
     robots: {
       index: !noIndex,
@@ -103,7 +104,7 @@ export async function generateSEOMetadata({
         "max-snippet": -1,
       },
     },
-  }
+  };
 }
 
 export function generateProductStructuredData(product: any) {
@@ -124,11 +125,13 @@ export function generateProductStructuredData(product: any) {
     },
     offers: {
       "@type": "Offer",
-      availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      availability: product.inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
       priceCurrency: "USD",
       url: `${siteConfig.url}/products/${product.slug}`,
     },
-  }
+  };
 }
 
 export function generateOrganizationStructuredData() {
@@ -151,14 +154,16 @@ export function generateOrganizationStructuredData() {
       "@type": "ContactPoint",
       telephone: "+91-22-1234-5678",
       contactType: "Customer Service",
-      email: "info@aurevion.com",
+      email: "info@kkengineering.com",
       availableLanguage: ["English"],
     },
     sameAs: [siteConfig.links.twitter, siteConfig.links.linkedin],
-  }
+  };
 }
 
-export function generateBreadcrumbStructuredData(items: { name: string; url: string }[]) {
+export function generateBreadcrumbStructuredData(
+  items: { name: string; url: string }[],
+) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -168,5 +173,5 @@ export function generateBreadcrumbStructuredData(items: { name: string; url: str
       name: item.name,
       item: `${siteConfig.url}${item.url}`,
     })),
-  }
+  };
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Aurevion Pharma Deployment Script
+# KK Engineering Deployment Script
 # This script automates the deployment process
 
 set -e  # Exit on error
@@ -14,8 +14,8 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Configuration
-APP_DIR="/var/www/aurevion-pharma"
-APP_NAME="aurevion-pharma"
+APP_DIR="/var/www/kk-engineering"
+APP_NAME="kk-engineering"
 NODE_VERSION="18"  # Adjust based on your Node.js version
 
 # Function to print colored output

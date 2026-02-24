@@ -1,4 +1,9 @@
-import type { HomePageContent, AboutPageContent, ContactPageContent, FooterContent } from "@/types"
+import type {
+  HomePageContent,
+  AboutPageContent,
+  ContactPageContent,
+  FooterContent,
+} from "@/types";
 
 export const seedHomePageContent: HomePageContent = {
   id: "home_content_1",
@@ -58,31 +63,35 @@ export const seedHomePageContent: HomePageContent = {
       {
         number: "01",
         title: "Requirement",
-        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+        description:
+          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
         icon: "/images/icons/microscope.png",
       },
       {
         number: "02",
         title: "Proposal Development",
-        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+        description:
+          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
         icon: "/images/icons/prescription.png",
       },
       {
         number: "03",
         title: "Quality Manufacturing",
-        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+        description:
+          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
         icon: "/images/icons/molecule.png",
       },
       {
         number: "04",
         title: "Product Delivery",
-        description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+        description:
+          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
         icon: "/images/icons/report.png",
       },
     ],
   },
   updatedAt: new Date(),
-}
+};
 
 export const seedAboutPageContent: AboutPageContent = {
   id: "about_content_1",
@@ -93,7 +102,7 @@ export const seedAboutPageContent: AboutPageContent = {
     badge: "ABOUT US",
     title: "PIONEERING INNOVATION IN DRUG DISCOVERY",
     description:
-      "At Aurevion Pharmaceuticals, we manufacture our own KSMs for APIs, giving us a distinct advantage over companies that depend on external vendors. Backed by an advanced R&D team of experienced scientists, we develop a wide range of KSMs and intermediates for leading pharmaceutical firms. We also undertake custom manufacturing of KSMs and intermediates on a reliable CDMO partner.",
+      "At KK Engineeringceuticals, we manufacture our own KSMs for APIs, giving us a distinct advantage over companies that depend on external vendors. Backed by an advanced R&D team of experienced scientists, we develop a wide range of KSMs and intermediates for leading pharmaceutical firms. We also undertake custom manufacturing of KSMs and intermediates on a reliable CDMO partner.",
     features: [
       {
         icon: "reliability",
@@ -130,43 +139,47 @@ export const seedAboutPageContent: AboutPageContent = {
     missionImage: "/images/compass-mission.jpg",
   },
   whyUs: {
-    badge: "WHY AUREVION",
+    badge: "WHY kkengineering",
     title: "Why Labrix for Trusted Research Solutions",
     description:
-      "At Aurevion Pharmaceuticals, we manufacture our own KSMs for APIs, giving us a distinct advantage over companies that depend on external vendors.",
+      "At KK Engineeringceuticals, we manufacture our own KSMs for APIs, giving us a distinct advantage over companies that depend on external vendors.",
     features: [
       {
         icon: "expertise",
         title: "Expertise & Experience",
-        description: "16+ years of pharmaceutical industry experience with proven track record.",
+        description:
+          "16+ years of pharmaceutical industry experience with proven track record.",
       },
       {
         icon: "quality",
         title: "Quality Assurance",
-        description: "ISO certified facilities with stringent quality control measures.",
+        description:
+          "ISO certified facilities with stringent quality control measures.",
       },
       {
         icon: "innovation",
         title: "Innovation",
-        description: "Advanced R&D capabilities for custom synthesis and development.",
+        description:
+          "Advanced R&D capabilities for custom synthesis and development.",
       },
     ],
   },
   updatedAt: new Date(),
-}
+};
 
 export const seedContactPageContent: ContactPageContent = {
   id: "contact_content_1",
   hero: {
     title: "CONTACT US",
-    subtitle: "Act fast and make Aurevion a part of your daily health routine",
+    subtitle:
+      "Act fast and make kkengineering a part of your daily health routine",
     backgroundImage: "/images/contact/contact-hero-bg.png",
   },
   contactInfo: {
     email: {
       title: "Email",
       description: "Our friendly team is here to help.",
-      value: "sales@aurevionpharma.com",
+      value: "sales@kkengineeringpharma.com",
     },
     phone: {
       title: "Phone",
@@ -180,12 +193,13 @@ export const seedContactPageContent: ContactPageContent = {
     },
   },
   updatedAt: new Date(),
-}
+};
 
 export const seedFooterContent: FooterContent = {
   id: "footer_content_1",
-  logo: "/images/aurevion-logo-white.png",
-  companyInfo: "Leading pharmaceutical company specializing in high-quality APIs and innovative solutions.",
+  logo: "/images/kkengineering-logo-white.png",
+  companyInfo:
+    "Leading pharmaceutical company specializing in high-quality APIs and innovative solutions.",
   productLinks: [
     { name: "Products", href: "/products" },
     { name: "Import/Export", href: "/products" },
@@ -199,10 +213,10 @@ export const seedFooterContent: FooterContent = {
     { name: "Pathology", href: "/about" },
   ],
   socialMedia: {
-    facebook: "https://facebook.com/aurevionpharma",
-    twitter: "https://twitter.com/aurevionpharma",
-    youtube: "https://youtube.com/aurevionpharma",
-    linkedin: "https://linkedin.com/company/aurevionpharma",
+    facebook: "https://facebook.com/kkengineeringpharma",
+    twitter: "https://twitter.com/kkengineeringpharma",
+    youtube: "https://youtube.com/kkengineeringpharma",
+    linkedin: "https://linkedin.com/company/kkengineeringpharma",
   },
   newsletter: {
     heading: "Newsletter",
@@ -211,8 +225,8 @@ export const seedFooterContent: FooterContent = {
   contact: {
     location: "Hyderabad, Telangana India",
     phone: "+91-123 4567 8900",
-    email: "hello@AurevionPharmatech",
+    email: "hello@kkengineeringPharmatech",
   },
-  copyright: "© 2025 Aurevion Pharmatech. All rights reserved.",
+  copyright: "© 2025 KK Engineeringtech. All rights reserved.",
   updatedAt: new Date(),
-}
+};

@@ -1,9 +1,11 @@
-import type { IDataRepository } from "./IDataRepository"
-import { MongoDBRepository } from "./MongoDBRepository"
+import { MongoDBRepository } from "./MongoDBRepository";
+import type { IDataRepository } from "./IDataRepository";
 
-// Force MongoDB usage in production - no more InMemory fallback
+let repo: IDataRepository | null = null;
+
 export function getRepository(): IDataRepository {
-  return new MongoDBRepository()
+  if (!repo) {
+    repo = new MongoDBRepository();
+  }
+  return repo;
 }
-
-export type { IDataRepository }

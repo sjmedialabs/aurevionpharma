@@ -1,8 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import { useEffect, useState } from "react"
 import type { AboutPageContent } from "@/types"
+
+const DEFAULT_IMAGE = "/placeholder.jpg"
 
 export function AboutIntro() {
   const [content, setContent] = useState<AboutPageContent["intro"] | null>(null)
@@ -23,27 +24,16 @@ export function AboutIntro() {
     badge: "ABOUT US",
     title: "PIONEERING INNOVATION IN DRUG DISCOVERY",
     description: "We are committed to pushing the boundaries of pharmaceutical innovation, driving forward the development of life-changing medications through cutting-edge research and uncompromising quality standards.",
-    features: [
-      {
-        icon: "/images/icon-quality.png",
-        title: "Reliability",
-        description: "Our unwavering commitment to reliability ensures that every product we develop meets the highest standards of consistency and dependability."
-      },
-      {
-        icon: "/images/icon-network.png", 
-        title: "Sustainability",
-        description: "We prioritize sustainable practices in our operations, focusing on environmentally responsible manufacturing and long-term viability."
-      },
-      {
-        icon: "/images/icon-medicines.png",
-        title: "Quality & Cost-Effectiveness", 
-        description: "We deliver exceptional quality while maintaining cost-effectiveness, making essential medications accessible without compromising excellence."
-      }
-    ]
+    image: DEFAULT_IMAGE,
   }
 
   // Use CMS content if available, otherwise use defaults
-  const introContent = content || defaultContent
+  const introContent = {
+    badge: content?.badge || defaultContent.badge,
+    title: content?.title || defaultContent.title,
+    description: content?.description || defaultContent.description,
+    image: content?.image || defaultContent.image,
+  }
 
   if (!content) {
     return (
@@ -61,13 +51,13 @@ export function AboutIntro() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Image */}
           <div className="relative">
-            <Image
-              src="/images/scientist-with-microscope.png"
-              alt="Scientist in laboratory"
-              width={500}
-              height={500}
-              className="rounded-lg shadow-lg w-full h-auto"
-              priority
+            <img
+              src={introContent.image || DEFAULT_IMAGE}
+              alt="About KK Engineering"
+              className="rounded-lg shadow-lg w-full h-auto object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_IMAGE
+              }}
             />
           </div>
 
@@ -85,39 +75,11 @@ export function AboutIntro() {
 
             {/* Description */}
             <div className="text-gray-600 font-poppins leading-relaxed space-y-4">
-              {introContent.description.split('\n').map((paragraph, index) => (
+              {(introContent.description || '').split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Features Grid */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {introContent.features.map((feature, index) => (
-            <div key={index} className="text-center bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-              {/* Feature Icon */}
-              <div className="mb-4 flex justify-center">
-                <Image
-                  src={feature.icon || "/images/icon-default.png"}
-                  alt={feature.title}
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 object-contain"
-                />
-              </div>
-              
-              {/* Feature Title */}
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 font-poppins">
-                {feature.title}
-              </h3>
-              
-              {/* Feature Description */}
-              <p className="text-gray-600 leading-relaxed font-poppins">
-                {feature.description}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
     </section>

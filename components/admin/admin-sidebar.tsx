@@ -5,7 +5,7 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Package, FolderTree, Mail, LogOut, Beaker, Briefcase, FileText, Layers, Settings } from "lucide-react"
+import { LayoutDashboard, Package, FolderTree, Mail, LogOut, Beaker, Briefcase, FileText, Settings, Image as ImageIcon, Users, MessageSquare } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
 import { useEffect, useState } from "react"
 
@@ -13,8 +13,10 @@ const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Categories", href: "/admin/categories", icon: FolderTree },
-  { name: "Subcategories", href: "/admin/subcategories", icon: Layers },
   { name: "Services", href: "/admin/services", icon: Briefcase },
+  { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
+  { name: "Clients", href: "/admin/clients", icon: Users },
+  { name: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
   { name: "Enquiries", href: "/admin/enquiries", icon: Mail },
   { name: "Content", href: "/admin/content", icon: FileText },
   { name: "Settings", href: "/admin/settings", icon: Settings },

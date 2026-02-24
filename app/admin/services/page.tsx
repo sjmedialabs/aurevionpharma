@@ -14,6 +14,7 @@ import { useToastContext } from "@/components/providers/toast-provider"
 import { AccordionItem } from "@/components/admin/accordion-item"
 import { Checkbox } from "@/components/ui/checkbox"
 import { MediaUpload } from "@/components/admin/media-upload"
+import { PageHeroSettings } from "@/components/admin/page-hero-settings"
 
 export default function AdminServicesPage() {
   const { success, error } = useToastContext()
@@ -55,6 +56,11 @@ export default function AdminServicesPage() {
   const handleSaveService = async () => {
     if (!formData.title || !formData.description || !formData.shortDescription) {
       error("Please fill in all required fields")
+      return
+    }
+    const wordCount = formData.shortDescription.trim().split(/\s+/).filter(Boolean).length
+    if (wordCount > 7) {
+      error("Short description must be 7 words or less (used on service cards)")
       return
     }
 
@@ -102,6 +108,9 @@ export default function AdminServicesPage() {
 
   return (
     <div className="p-6">
+      {/* Page Hero Settings */}
+      <PageHeroSettings pageKey="services" pageTitle="Services" />
+
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -322,14 +331,17 @@ export default function AdminServicesPage() {
 
             {/* Descriptions */}
             <div>
-              <Label htmlFor="shortDescription">Short Description*</Label>
+              <Label htmlFor="shortDescription">Short Description* (max 7 words)</Label>
               <Textarea 
                 id="shortDescription" 
                 value={formData.shortDescription} 
                 onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })} 
-                placeholder="Enter short description for preview (1-2 sentences)" 
+                placeholder="e.g. Industrial boiler installation and maintenance" 
                 rows={2} 
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Shown on service cards. Max 7 words.
+              </p>
             </div>
             
             <div>

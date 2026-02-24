@@ -195,8 +195,8 @@ export function EnquiryModal({ isOpen, onClose, product }: EnquiryModalProps) {
           <div className="mb-4 text-center">
             <div className="mb-3 flex justify-center">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AUREVION-PHARMA-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png"
-                alt="Aurevion Pharmaceuticals"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kk-engineering-LOGO-original-wWP2iaSaGxp7DpW3TLlb0sTnTqTdst.png"
+                alt="KK Engineeringceuticals"
                 width={200}
                 height={60}
                 className="h-auto w-auto max-w-[200px]"

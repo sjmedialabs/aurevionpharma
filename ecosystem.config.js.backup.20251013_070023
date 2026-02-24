@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "aurevion-pharma",
+      name: "kk-engineering",
       script: "node_modules/next/dist/bin/next",
       args: "start",
       cwd: "./",
@@ -12,8 +12,8 @@ module.exports = {
         PORT: 8142,
         ADMIN_USERNAME: "admin",
         ADMIN_PASSWORD: "admin123",
-        SESSION_SECRET: "your-secret-key-change-in-production-aurevion-2024",
-        MONGODB_URI: "mongodb+srv://aurevion:aurevion123@aurevion-cluster.plvbx7e.mongodb.net/aurevion?retryWrites=true&w=majority&appName=aurevion-cluster",
+        SESSION_SECRET: "your-secret-key-change-in-production-kkengineering-2024",
+        MONGODB_URI: "mongodb+srv://kkengineering:kkengineering123@kkengineering-cluster.plvbx7e.mongodb.net/kkengineering?retryWrites=true&w=majority&appName=kkengineering-cluster",
         USE_MONGODB: "true",
         NEXT_PUBLIC_SITE_URL: "http://31.97.224.169:8142",
       },

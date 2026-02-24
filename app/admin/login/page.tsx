@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Beaker } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Beaker } from "lucide-react";
 
 export default function AdminLoginPage() {
-  const router = useRouter()
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Login failed")
-        return
+        setError(data.error || "Login failed");
+        return;
       }
 
-      router.push("/admin")
-      router.refresh()
+      router.push("/admin");
+      router.refresh();
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError("An error occurred. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
@@ -53,7 +53,9 @@ export default function AdminLoginPage() {
             <div className="flex items-center gap-2">
               <Beaker className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Aurevion</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  kkengineering
+                </h1>
                 <p className="text-sm text-gray-600">Admin Portal</p>
               </div>
             </div>
@@ -61,7 +63,9 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="mb-2 block">Username</Label>
+              <Label htmlFor="username" className="mb-2 block">
+                Username
+              </Label>
               <Input
                 id="username"
                 type="text"
@@ -74,7 +78,9 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="mb-2 block">Password</Label>
+              <Label htmlFor="password" className="mb-2 block">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -104,5 +110,5 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

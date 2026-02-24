@@ -15,7 +15,7 @@ export function WhyLabrix() {
                 className="inline-block px-6 py-2 border-2 rounded-full text-sm font-medium uppercase tracking-wide mb-4"
                 style={{ borderColor: "#4384C5", color: "#4384C5" }}
               >
-                WHY AUREVION
+                WHY kkengineering
               </span>
               <h2 className="font-light mb-6" style={{ color: "#4384C5", fontSize: "36px", fontFamily: "Poppins" }}>
                 WHY LABRIX FOR TRUSTED RESEARCH SOLUTIONS

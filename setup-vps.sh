@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Aurevion Pharma VPS Setup Script for Hostinger
+# KK Engineering VPS Setup Script for Hostinger
 # This script sets up the complete environment for deployment
 
 set -e  # Exit on error
@@ -29,7 +29,7 @@ print_info() {
 }
 
 echo "=========================================="
-echo "  Aurevion Pharma VPS Setup"
+echo "  KK Engineering VPS Setup"
 echo "=========================================="
 echo ""
 
@@ -74,7 +74,7 @@ systemctl enable nginx
 print_success "Nginx installed and started"
 
 # Create application directory
-APP_DIR="/var/www/aurevion-pharma"
+APP_DIR="/var/www/kk-engineering"
 print_warning "Creating application directory at $APP_DIR..."
 mkdir -p $APP_DIR
 print_success "Application directory created"
